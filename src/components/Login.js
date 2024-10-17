@@ -1,25 +1,28 @@
 import React, { useState } from "react";
+import bgImage from "../assets/images/bg.webp"; // Replace with your background image path
 
-const LoginForm = () => {
+const LoginForm = ({ toggleForm }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Add your login logic here
     console.log("Login attempt with:", { email, password });
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Login to AonePrep
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">
+          Login to Aone Prep
         </h2>
         <form onSubmit={handleLogin}>
-          <div className="mb-4">
+          <div className="mb-6">
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               type="email"
               placeholder="Email"
               value={email}
@@ -29,7 +32,7 @@ const LoginForm = () => {
           </div>
           <div className="mb-6">
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
               type="password"
               placeholder="Password"
               value={password}
@@ -37,41 +40,50 @@ const LoginForm = () => {
               required
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Sign In
-            </button>
-          </div>
+          <button
+            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+            type="submit"
+          >
+            Sign In
+          </button>
         </form>
+        <div className="mt-4 text-center">
+          <span className="text-gray-600">Don't have an account? </span>
+          <button
+            className="text-blue-500 hover:underline"
+            onClick={() => toggleForm("register")}
+          >
+            Register here
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-const RegisterForm = () => {
+const RegisterForm = ({ toggleForm }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleRegister = (e) => {
     e.preventDefault();
-    // Add your registration logic here
     console.log("Registration attempt with:", { name, email, password });
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h2 className="text-2xl font-bold mb-6 text-center">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-8 text-green-600">
           Register for AonePrep
         </h2>
         <form onSubmit={handleRegister}>
-          <div className="mb-4">
+          <div className="mb-6">
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500"
               type="text"
               placeholder="Full Name"
               value={name}
@@ -79,9 +91,9 @@ const RegisterForm = () => {
               required
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500"
               type="email"
               placeholder="Email"
               value={email}
@@ -91,7 +103,7 @@ const RegisterForm = () => {
           </div>
           <div className="mb-6">
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500"
               type="password"
               placeholder="Password"
               value={password}
@@ -99,18 +111,39 @@ const RegisterForm = () => {
               required
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Register
-            </button>
-          </div>
+          <button
+            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+            type="submit"
+          >
+            Register
+          </button>
         </form>
+        <div className="mt-4 text-center">
+          <span className="text-gray-600">Already have an account? </span>
+          <button
+            className="text-green-500 hover:underline"
+            onClick={() => toggleForm("login")}
+          >
+            Login here
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export { LoginForm, RegisterForm };
+const AuthPage = () => {
+  const [formType, setFormType] = useState("login");
+
+  return (
+    <>
+      {formType === "login" ? (
+        <LoginForm toggleForm={setFormType} />
+      ) : (
+        <RegisterForm toggleForm={setFormType} />
+      )}
+    </>
+  );
+};
+
+export default AuthPage;

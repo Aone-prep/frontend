@@ -1,90 +1,188 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import bgImage from "../assets/images/bg.jpeg"; // Replace with your background image path
 import { useNavigate } from "react-router-dom";
+import { setUser } from "../redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
-const LoginPage = () => {
+// You need to replace this with your actual Google Client ID
+const LoginForm = ({ toggleForm }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const setUser = (user) => {
-    return {
-      type: "SET_USER",
-      payload: user,
-    };
-  };
+  const dispatch = useDispatch();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // In a real app, you would make an API call here
-    // This is a mock login
-    if (email === "student@example.com" && password === "password123") {
-      const user = { id: 1, name: "John Doe", email: email };
-      // dispatch(setUser(user));
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials");
-    }
+    console.log("Login attempt with:", { email, password });
+  };
+
+  const handleGoogleSuccess = (response) => {
+    // console.log("Google Sign-In Successful", response);
+    dispatch(setUser(response.profileObj));
+    navigate("/dashboard");
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.log("Google Sign-In Failed", error);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to AonePrep
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <input type="hidden" name="remember" value="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+    <div
+      className="h-full flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">
+          Login to A-one Prep
+        </h2>
+        <form onSubmit={handleLogin}>
+          <div className="mb-6">
+            <input
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Sign in
-            </button>
+          <div className="mb-6">
+            <input
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
+          <button
+            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 mb-4"
+            type="submit"
+          >
+            Sign In
+          </button>
         </form>
+        <div className="flex items-center justify-center mb-4">
+          <hr className="w-full border-gray-300" />
+          <span className="px-2 text-gray-500">OR</span>
+          <hr className="w-full border-gray-300" />
+        </div>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleFailure}
+        />
+        <div className="mt-4 text-center">
+          <span className="text-gray-600">Don't have an account? </span>
+          <button
+            className="text-blue-500 hover:underline"
+            onClick={() => toggleForm("register")}
+          >
+            Register here
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export const RegisterForm = ({ toggleForm }) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    console.log("Registration attempt with:", { name, email, password });
+  };
+
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center mb-8 text-green-600">
+          Register for A-one Prep
+        </h2>
+        <form onSubmit={handleRegister}>
+          <div className="mb-6">
+            <input
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500"
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <input
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <input
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button
+            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+            type="submit"
+          >
+            Register
+          </button>
+        </form>
+        <div className="mt-4 text-center">
+          <span className="text-gray-600">Already have an account? </span>
+          <button
+            className="text-green-500 hover:underline"
+            onClick={() => toggleForm("login")}
+          >
+            Login here
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AuthPage = () => {
+  const [formType, setFormType] = useState("login");
+
+  useEffect(() => {
+    // Initialize Google OAuth client on component mount
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  return (
+    <>
+      {formType === "login" ? (
+        <LoginForm toggleForm={setFormType} />
+      ) : (
+        <RegisterForm toggleForm={setFormType} />
+      )}
+    </>
+  );
+};
+
+export default AuthPage;

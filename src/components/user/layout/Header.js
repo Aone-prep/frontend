@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { clearUser } from "../../redux/slices/userSlice";
+import { clearUser } from "../../../redux/slices/userSlice";
 
 const Header = () => {
   const user = useSelector((state) => state.user.currentUser);

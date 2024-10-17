@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { ExamProgress, StudyPlan } from "../components/dashboard";
+import { ExamProgress, StudyPlan } from "../components/user/dashboard";
 
 const Dashboard = () => {
   const user = useSelector((state) => state.user.currentUser);
