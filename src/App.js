@@ -8,8 +8,10 @@ import {
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { Header } from "./components/layout";
-import { LoginPage, RegisterPage, Dashboard, PageNotFound } from "./pages";
+import { LoginPage, RegisterPage, Dashboard, PageNotFound} from "./pages";
 import { PublicRoute, PrivateRoute } from "./routes";
+import AdminRoute from "./routes/AdminRoute";
+import AdminPanel from "./components/admin/AdminPanel";
 
 function App() {
   return (
@@ -17,7 +19,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-100">
           <Header />
-          <main className="container mx-auto py-4">
+          <main className="container py-4">
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
 
@@ -25,9 +27,14 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
               </Route>
+              {/* <Route element={<AdminRoute />}>
+                <Route path="/admin/*" element={<AdminPanel />} />
+              </Route> */}
               {/* <Route element={<PrivateRoute />}> */}
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<AdminPanel />} />
               {/* </Route> */}
+              
               <Route path="*" element={<PageNotFound />} />
             </Routes>
           </main>
