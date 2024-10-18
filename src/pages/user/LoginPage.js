@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { setUser } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { showToast } from "../../utils/helper";
+import { jwtDecode } from "jwt-decode";
 // You need to replace this with your actual Google Client ID
 const LoginForm = ({ toggleForm }) => {
   const [email, setEmail] = useState("");
@@ -19,7 +20,17 @@ const LoginForm = ({ toggleForm }) => {
 
   const handleGoogleSuccess = (response) => {
     console.log("Google Sign-In Successful", response);
-    dispatch(setUser(response.profileObj));
+    const { credential } = response;
+
+    // Decode the JWT to extract user profile information
+    const decodedUser = jwtDecode(credential);
+    console.log(decodedUser);
+
+    console.log("Decoded User Info:", decodedUser); // This will contain user profile data
+
+    // Dispatch to your Redux store
+    dispatch(setUser(decodedUser));
+
     navigate("/dashboard");
     showToast("success", "User logged in successfully");
   };
