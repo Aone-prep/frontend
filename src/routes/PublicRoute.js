@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 const PublicRoute = () => {
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
-  return isAuthenticated ? <Navigate to="/dashboard" /> : <Outlet />;
+  return isAuthenticated ? <Navigate to="/home" /> : <Outlet />;
 };
 
 export default PublicRoute;
