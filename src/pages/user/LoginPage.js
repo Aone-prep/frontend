@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import bgImage from "../assets/images/bg.jpeg"; // Replace with your background image path
+import bgImage from "../../assets/images/bg.jpeg"; // Replace with your background image path
 import { useNavigate } from "react-router-dom";
-import { setUser } from "../redux/slices/userSlice";
+import { setUser } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
-
+import { showToast } from "../../utils/helper";
 // You need to replace this with your actual Google Client ID
 const LoginForm = ({ toggleForm }) => {
   const [email, setEmail] = useState("");
@@ -18,9 +18,10 @@ const LoginForm = ({ toggleForm }) => {
   };
 
   const handleGoogleSuccess = (response) => {
-    // console.log("Google Sign-In Successful", response);
+    console.log("Google Sign-In Successful", response);
     dispatch(setUser(response.profileObj));
     navigate("/dashboard");
+    showToast("success", "User logged in successfully");
   };
 
   const handleGoogleFailure = (error) => {
@@ -65,16 +66,16 @@ const LoginForm = ({ toggleForm }) => {
           </button>
         </form>
         <div className="flex items-center justify-center mb-4">
-          <hr className="w-full border-gray-300" />
-          <span className="px-2 text-gray-500">OR</span>
-          <hr className="w-full border-gray-300" />
+          <hr className="w-full border-blue-300" />
+          <span className="px-2 text-blue-500">OR</span>
+          <hr className="w-full border-blue-300" />
         </div>
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={handleGoogleFailure}
         />
         <div className="mt-4 text-center">
-          <span className="text-gray-600">Don't have an account? </span>
+          <span className="text-blue-600">Don't have an account? </span>
           <button
             className="text-blue-500 hover:underline"
             onClick={() => toggleForm("register")}
@@ -145,7 +146,7 @@ export const RegisterForm = ({ toggleForm }) => {
           </button>
         </form>
         <div className="mt-4 text-center">
-          <span className="text-gray-600">Already have an account? </span>
+          <span className="text-blue-600">Already have an account? </span>
           <button
             className="text-green-500 hover:underline"
             onClick={() => toggleForm("login")}

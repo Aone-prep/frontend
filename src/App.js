@@ -8,16 +8,16 @@ import {
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { Header } from "@components/user/layout";
-import { LoginPage, Dashboard, PageNotFound } from "./pages";
 import { PublicRoute, PrivateRoute } from "./routes";
-import { RegisterForm } from "./pages/LoginPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { LoginPage, PageNotFound, UserDashboard } from "@pages/user";
+import { RegisterForm } from "@pages/user/LoginPage";
 
 function App() {
   return (
     <Provider store={store}>
       <Router>
-        <div className="h-screen flex flex-col bg-gray-100">
+        <div className="h-screen flex flex-col">
           <Header />
           <div style={{ height: "calc(100vh - 4rem)" }}>
             <GoogleOAuthProvider
@@ -30,7 +30,7 @@ function App() {
                   <Route path="/register" element={<RegisterForm />} />
                 </Route>
                 <Route element={<PrivateRoute />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<UserDashboard />} />
                 </Route>
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
