@@ -12,6 +12,7 @@ import { LoginPage, Dashboard, PageNotFound } from "./pages";
 import { PublicRoute, PrivateRoute } from "./routes";
 import { RegisterForm } from "./pages/LoginPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import AdminPanel from "@components/admin/AdminPanel";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                 <Route element={<PrivateRoute />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                 </Route>
+                <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<PageNotFound />} />
               </Routes>
             </GoogleOAuthProvider>
