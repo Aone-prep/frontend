@@ -1,0 +1,125 @@
+import React, { useState } from "react";
+
+const EditCourseForm = ({ course, onSave, onCancel }) => {
+  const [title, setTitle] = useState(course.title);
+  const [instructor, setInstructor] = useState(course.instructor);
+  const [duration, setDuration] = useState(course.duration);
+  const [lectures, setLectures] = useState(course.lectures);
+  const [description, setDescription] = useState(course.description);
+  const [level, setLevel] = useState(course.level);
+  const [category, setCategory] = useState(course.category);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({
+      ...course,
+      title,
+      instructor,
+      duration,
+      lectures,
+      description,
+      level,
+      category,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-6">
+      <h2 className="text-2xl font-bold mb-6 text-center">Edit Course</h2>
+
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <label className="block mb-1 font-semibold">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-semibold">Instructor</label>
+          <input
+            type="text"
+            value={instructor}
+            onChange={(e) => setInstructor(e.target.value)}
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-semibold">Duration (hours)</label>
+          <input
+            type="text"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-semibold">Lectures</label>
+          <input
+            type="number"
+            value={lectures}
+            onChange={(e) => setLectures(e.target.value)}
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-semibold">Level</label>
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            className="border p-2 w-full rounded"
+            required
+          >
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
+        <div>
+          <label className="block mb-1 font-semibold">Category</label>
+          <input
+            type="text"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border p-2 w-full rounded"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1 font-semibold">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="border p-2 w-full rounded"
+          rows="4"
+          required
+        ></textarea>
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <button
+          onClick={onCancel}
+          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default EditCourseForm;
