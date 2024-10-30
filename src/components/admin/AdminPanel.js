@@ -3,6 +3,9 @@ import UserList from "./UserList";
 import AddUserForm from "./AddUserForm";
 import EditUserForm from "./EditUserForm";
 import Sidebar from "./Sidebar";
+import EditCourseForm from "./course/EditCourseForm";
+import AddCourseForm from "./course/AddCourseForm";
+import CourseList from "./course/CourseList";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([
@@ -40,11 +43,14 @@ const AdminPanel = () => {
               </div>
               <div className="bg-green-500 text-white p-6 rounded shadow-md">
                 <h3 className="text-lg font-semibold">Active Users</h3>
-                <p className="text-3xl font-bold">{users.filter(user => user.active).length}</p>
+                <p className="text-3xl font-bold">
+                  {users.filter((user) => user.active).length}
+                </p>
               </div>
               <div className="bg-red-500 text-white p-6 rounded shadow-md">
                 <h3 className="text-lg font-semibold">Pending Requests</h3>
-                <p className="text-3xl font-bold">5</p> {/* Placeholder count */}
+                <p className="text-3xl font-bold">5</p>{" "}
+                {/* Placeholder count */}
               </div>
             </div>
           </div>
@@ -61,7 +67,18 @@ const AdminPanel = () => {
             ) : (
               <AddUserForm onAdd={addUser} />
             )}
-            <UserList users={users} onEdit={(user) => setEditingUser(user)} onDelete={deleteUser} />
+            <UserList
+              users={users}
+              onEdit={(user) => setEditingUser(user)}
+              onDelete={deleteUser}
+            />
+          </>
+        );
+
+      case "courses":
+        return (
+          <>
+            <CourseList />
           </>
         );
       case "settings":
