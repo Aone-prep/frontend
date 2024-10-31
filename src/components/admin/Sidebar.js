@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaHome, FaCog, FaBook } from "react-icons/fa";
+import { FaUser, FaHome, FaCog, FaBook, FaQuestion } from "react-icons/fa";
 
 const Sidebar = ({ onSelect }) => {
   return (
@@ -34,6 +34,13 @@ const Sidebar = ({ onSelect }) => {
           >
             <FaBook className="mr-3" />
             Courses
+          </li>
+          <li
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
+            onClick={() => onSelect("questions")}
+          >
+            <FaQuestion className="mr-3" />
+            Questions
           </li>
         </ul>
       </nav>
