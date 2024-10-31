@@ -1,4 +1,5 @@
 import { useState } from "react";
+import bgImage from "@assets/images/bg.jpeg";
 
 const RegisterForm = ({ toggleForm }) => {
   const [name, setName] = useState("");

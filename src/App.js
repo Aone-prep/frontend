@@ -5,7 +5,6 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { Provider } from "react-redux";
 import { Header } from "@components/user/layout";
 import { PublicRoute, UserRoute } from "./routes";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -20,6 +19,7 @@ import {
 } from "@pages/user";
 import UserLayout from "@components/user/layout/UserLayout";
 import { useSelector } from "react-redux";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.isAuthenticated);
@@ -59,6 +59,7 @@ function App() {
               <Route path="*" element={<PageNotFound />} />
             </Routes>
           </GoogleOAuthProvider>
+          <Toaster />
         </div>
       </div>
     </Router>
