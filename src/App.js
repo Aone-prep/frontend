@@ -5,42 +5,71 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { Provider } from "react-redux";
-import { store } from "./redux/store";
 import { Header } from "@components/user/layout";
-import { LoginPage, Dashboard, PageNotFound } from "./pages";
-import { PublicRoute, PrivateRoute } from "./routes";
-import { RegisterForm } from "./pages/LoginPage";
+import { PublicRoute, UserRoute } from "./routes";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminPanel from "@components/admin/AdminPanel";
+import {
+  LoginPage,
+  PageNotFound,
+  RegisterForm,
+  Home,
+  CourseContents,
+  MockTest,
+  Forums,
+} from "@pages/user";
+import UserLayout from "@components/user/layout/UserLayout";
+import { useSelector } from "react-redux";
+import { Toaster } from "react-hot-toast";
+import CourseDetails from "@components/user/layout/CourseDetailPage";
 
 function App() {
+  const isAuthenticated = useSelector((state) => state.isAuthenticated);
+
   return (
-    <Provider store={store}>
-      <Router>
-        <div className="h-screen flex flex-col bg-gray-100">
-          <Header />
-          <div style={{ height: "calc(100vh - 4rem)" }}>
-            <GoogleOAuthProvider
-              clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-            >
-              <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route element={<PublicRoute />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterForm />} />
-                </Route>
-                <Route element={<PrivateRoute />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                </Route>
+    <Router>
+      <div className="h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 overflow-hidden">
+          <GoogleOAuthProvider
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+          >
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/home" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route element={<PublicRoute />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterForm />} />
                 <Route path="/admin" element={<AdminPanel />} />
-                <Route path="*" element={<PageNotFound />} />
-              </Routes>
-            </GoogleOAuthProvider>
-          </div>
+              </Route>
+              <Route element={<UserRoute />}>
+                <Route element={<UserLayout />}>
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/courses" element={<CourseContents />} />
+                  <Route
+                    path="/courses/:courseId"
+                    element={<CourseDetails />}
+                  />
+                  <Route path="/mock-test" element={<MockTest />} />
+                  {/* <Route path="/test-history" element={<TestHistory />} /> */}
+                  <Route path="/forums" element={<Forums />} />
+                </Route>
+              </Route>
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </GoogleOAuthProvider>
+          <Toaster />
         </div>
-      </Router>
-    </Provider>
+      </div>
+    </Router>
   );
 }
 

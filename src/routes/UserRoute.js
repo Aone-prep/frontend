@@ -1,11 +1,12 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { UserLayout } from "@components/user/layout";
 
-const PublicRoute = () => {
+const UserRoute = () => {
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
-  return isAuthenticated ? <Navigate to="/home" /> : <Outlet />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };
 
-export default PublicRoute;
+export default UserRoute;
