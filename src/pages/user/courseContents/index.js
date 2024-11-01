@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Search, Clock, School } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const CourseCategories = {
   Programming: ["Python", "JavaScript", "Java", "R", "C++"],

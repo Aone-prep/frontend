@@ -18,7 +18,6 @@ import {
   ListItemIcon,
   ListItemText,
   Chip,
-  useTheme,
   RadioGroup,
   Radio,
   FormControlLabel,
@@ -34,7 +33,7 @@ import {
   Timer,
   Star,
 } from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import { allCourseData } from "@utils/dummyData";
 
 
@@ -42,12 +41,8 @@ import { allCourseData } from "@utils/dummyData";
 
 const CourseDetails = () => {
   const { courseId } = useParams();
-  const theme = useTheme();
-  const navigate = useNavigate();  
 
   const courseData = allCourseData.find((course) => course.id === parseInt(courseId));
-
-  console.log(courseData);
   
   const [activeStep, setActiveStep] = useState(0);
   const [activeContent, setActiveContent] = useState(0);

@@ -84,10 +84,10 @@ const LoginForm = ({ toggleForm }) => {
           <span className="px-2 text-blue-500">OR</span>
           <hr className="w-full border-blue-300" />
         </div>
-        {/* <GoogleLogin
+        <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={handleGoogleFailure}
-        /> */}
+        />
         <div className="mt-4 text-center">
           <span className="text-blue-600">Don't have an account? </span>
           <button
