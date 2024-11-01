@@ -21,8 +21,8 @@ const UserLayout = () => {
     { icon: <Home size={24} />, text: "Home", path: "/home" },
     {
       icon: <Book size={24} />,
-      text: "Course Contents",
-      path: "/course-contents",
+      text: "Courses",
+      path: "/courses",
     },
     { icon: <FileText size={24} />, text: "Mock Test", path: "/mock-test" },
     {

@@ -20,6 +20,7 @@ import {
 import UserLayout from "@components/user/layout/UserLayout";
 import { useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
+import CourseDetails from "@components/user/layout/CourseDetailPage";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.isAuthenticated);
@@ -50,7 +51,11 @@ function App() {
               <Route element={<UserRoute />}>
                 <Route element={<UserLayout />}>
                   <Route path="/home" element={<Home />} />
-                  <Route path="/course-contents" element={<CourseContents />} />
+                  <Route path="/courses" element={<CourseContents />} />
+                  <Route
+                    path="/courses/:courseId"
+                    element={<CourseDetails />}
+                  />
                   <Route path="/mock-test" element={<MockTest />} />
                   {/* <Route path="/test-history" element={<TestHistory />} /> */}
                   <Route path="/forums" element={<Forums />} />
