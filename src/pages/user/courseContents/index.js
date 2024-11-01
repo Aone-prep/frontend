@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Search, Clock, School } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { v4 as uuid4 } from "uuid";
 
 const CourseCategories = {
   Programming: ["Python", "JavaScript", "Java", "R", "C++"],
