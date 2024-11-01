@@ -16,18 +16,20 @@ const LoginForm = ({ toggleForm }) => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Login attempt with:", { email, password });
+    if (email === "user@gmail.com" && password === "password") {
+      dispatch(setUser({ currentUser: "Suraj", isAuthenticated: true }));
+      navigate("/home");
+    } else {
+      console.log("I ma here");
+      showToast("error", "Invalid credentials");
+    }
   };
 
   const handleGoogleSuccess = (response) => {
-    console.log("Google Sign-In Successful", response);
     const { credential } = response;
 
     // Decode the JWT to extract user profile information
     const decodedUser = jwtDecode(credential);
-    console.log(decodedUser);
-
-    console.log("Decoded User Info:", decodedUser); // This will contain user profile data
 
     // Dispatch to your Redux store
     dispatch(setUser(decodedUser));
@@ -82,10 +84,10 @@ const LoginForm = ({ toggleForm }) => {
           <span className="px-2 text-blue-500">OR</span>
           <hr className="w-full border-blue-300" />
         </div>
-        <GoogleLogin
+        {/* <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={handleGoogleFailure}
-        />
+        /> */}
         <div className="mt-4 text-center">
           <span className="text-blue-600">Don't have an account? </span>
           <button
