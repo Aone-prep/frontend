@@ -1,7 +1,26 @@
-import React from "react";
-import { FaUser, FaHome, FaCog, FaBook } from "react-icons/fa";
+import React, { useState } from "react";
+import {
+  FaUser,
+  FaHome,
+  FaCog,
+  FaBook,
+  FaQuestion,
+  FaChevronDown,
+  FaChevronRight,
+} from "react-icons/fa";
 
 const Sidebar = ({ onSelect }) => {
+  const [isCourseSubmenuOpen, setIsCourseSubmenuOpen] = useState(false);
+  const [isQuestionSubmenuOpen, setIsQuestionSubmenuOpen] = useState(false);
+
+  const toggleCourseSubmenu = () => {
+    setIsCourseSubmenuOpen(!isCourseSubmenuOpen);
+  };
+
+  const toggleQuestionSubmenu = () => {
+    setIsQuestionSubmenuOpen(!isQuestionSubmenuOpen);
+  };
+
   return (
     <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">
       <div className="p-6 text-2xl font-bold bg-gray-900">Admin Panel</div>
@@ -15,21 +34,14 @@ const Sidebar = ({ onSelect }) => {
             Dashboard
           </li>
           <li
-<<<<<<< Updated upstream
             className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
             onClick={() => onSelect("users")}
           >
             <FaUser className="mr-3" />
             Users
           </li>
+
           <li
-            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
-            onClick={() => onSelect("settings")}
-          >
-            <FaCog className="mr-3" />
-            Settings
-          </li>
-=======
             className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center justify-between"
             onClick={toggleCourseSubmenu}
           >
@@ -47,7 +59,7 @@ const Sidebar = ({ onSelect }) => {
               >
                 All Courses
               </li>
-              
+
               <li
                 className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
                 onClick={() => onSelect("categories")}
@@ -56,28 +68,33 @@ const Sidebar = ({ onSelect }) => {
               </li>
             </ul>
           )}
->>>>>>> Stashed changes
           <li
-            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
-            onClick={() => onSelect("courses")}
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center justify-between"
+            onClick={toggleQuestionSubmenu}
           >
-<<<<<<< Updated upstream
-            <FaBook className="mr-3" />
-            Courses
-=======
-
-            <FaQuestion className="mr-3" />
-            Questions
->>>>>>> Stashed changes
+            <span className="flex items-center">
+              <FaQuestion className="mr-3" />
+              Questions
+            </span>
+            {isQuestionSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
           </li>
-          <li
-            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
-            onClick={() => onSelect("users")}
-          >
-            <FaUser className="mr-3" />
-            Users
-          </li>
+          {isQuestionSubmenuOpen && (
+            <ul className="ml-8 mt-2 space-y-2">
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("questions")}
+              >
+                Questions{" "}
+              </li>
 
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("question-categories")}
+              >
+                Question Categories
+              </li>
+            </ul>
+          )}
           <li
             className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
             onClick={() => onSelect("settings")}

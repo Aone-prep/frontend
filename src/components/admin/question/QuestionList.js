@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
 import EditQuestionForm from "./EditQuestionForm";
 import AddQuestionForm from "./AddQuestionForm";
-import QuestionDetail from "./QestionDetail";
+import QuestionDetail from "./QuestionDetail";
 
 const QuestionList = () => {
   const [questions, setQuestions] = useState([

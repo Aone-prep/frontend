@@ -6,6 +6,9 @@ import Sidebar from "./Sidebar";
 import EditCourseForm from "./course/EditCourseForm";
 import AddCourseForm from "./course/AddCourseForm";
 import CourseList from "./course/CourseList";
+import QuestionList from "./question/QuestionList";
+import CategoryList from "./coursecategory/CategoryList";
+import QuestionCategoryList from "./question-category/QuestionCategoryList";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([
@@ -79,6 +82,24 @@ const AdminPanel = () => {
         return (
           <>
             <CourseList />
+          </>
+        );
+      case "questions":
+        return (
+          <>
+            <QuestionList />
+          </>
+        );
+      case "categories":
+        return (
+          <>
+            <CategoryList />
+          </>
+        );
+      case "question-categories":
+        return (
+          <>
+            <QuestionCategoryList />
           </>
         );
       case "settings":

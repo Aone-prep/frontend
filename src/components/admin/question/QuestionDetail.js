@@ -1,25 +1,16 @@
-import React from "react";
-import {
-  X,
-  User,
-  Clock,
-  BookOpen,
-  Award,
-  Folder,
-  FileText,
-} from "lucide-react";
+// QuestionDetail.js
 
-const CourseDetail = ({ course = {}, onClose }) => {
-  // Default values for course properties
+import React from "react";
+import { X, Info, Layers, Tag, List, CheckCircle } from "lucide-react";
+
+const QuestionDetail = ({ question = {}, onClose }) => {
   const {
-    title = "Course Title",
-    instructor = "Not specified",
-    duration = "Not specified",
-    lectures = "Not specified",
-    level = "Not specified",
-    category = "Not specified",
-    description = "No description available",
-  } = course;
+    text = "Question text",
+    type = "Type not specified",
+    category = "Category not specified",
+    level = "Level not specified",
+    answer = ["No answers available"],
+  } = question;
 
   const InfoItem = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
@@ -37,7 +28,9 @@ const CourseDetail = ({ course = {}, onClose }) => {
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex justify-between items-start">
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Question Details
+            </h2>
             <button
               onClick={onClose}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -50,20 +43,23 @@ const CourseDetail = ({ course = {}, onClose }) => {
         {/* Content */}
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <InfoItem icon={User} label="Instructor" value={instructor} />
-            <InfoItem icon={Clock} label="Duration" value={duration} />
-            <InfoItem icon={BookOpen} label="Lectures" value={lectures} />
-            <InfoItem icon={Award} label="Level" value={level} />
-            <InfoItem icon={Folder} label="Category" value={category} />
+            <InfoItem icon={Info} label="Question Text" value={text} />
+            <InfoItem icon={Layers} label="Type" value={type} />
+            <InfoItem icon={Tag} label="Category" value={category} />
+            <InfoItem icon={CheckCircle} label="Level" value={level} />
           </div>
 
-          {/* Description Section */}
+          {/* Answer Section */}
           <div className="mt-6">
             <div className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
-              <FileText className="w-5 h-5 text-blue-600" />
-              <h3>Description</h3>
+              <List className="w-5 h-5 text-blue-600" />
+              <h3>Answer(s)</h3>
             </div>
-            <p className="text-gray-700 leading-relaxed">{description}</p>
+            <ul className="list-disc pl-6 text-gray-700 leading-relaxed">
+              {answer.map((ans, index) => (
+                <li key={index}>{ans}</li>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -81,4 +77,4 @@ const CourseDetail = ({ course = {}, onClose }) => {
   );
 };
 
-export default CourseDetail;
+export default QuestionDetail;
