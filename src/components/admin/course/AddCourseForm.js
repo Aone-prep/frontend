@@ -7,7 +7,16 @@ const AddCourseForm = ({ onAdd, onCancel }) => {
   const [lectures, setLectures] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState("Beginner");
-  const [category, setCategory] = useState("");
+
+  const categories = [
+    { id: 1, name: "Programming" },
+    { id: 2, name: "Data Science" },
+    { id: 3, name: "Design" },
+    { id: 4, name: "Marketing" },
+  ];
+  const [category, setCategory] = useState(categories.length > 0 ? categories[0].name : "");
+
+ 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -82,13 +91,18 @@ const AddCourseForm = ({ onAdd, onCancel }) => {
         </div>
         <div>
           <label className="block mb-1 font-semibold">Category</label>
-          <input
-            type="text"
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="border p-2 w-full rounded"
             required
-          />
+          >
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -114,7 +128,7 @@ const AddCourseForm = ({ onAdd, onCancel }) => {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-green-700"
         >
-          Add Course{" "}
+          Add Course
         </button>
       </div>
     </form>
