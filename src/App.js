@@ -48,9 +48,9 @@ function App() {
               <Route element={<PublicRoute />}>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterForm />} />
-                <Route path="/admin" element={<AdminPanel />} />
               </Route>
               <Route element={<UserRoute />}>
+                <Route path="/admin" element={<AdminPanel />} />
                 <Route element={<UserLayout />}>
                   <Route path="/home" element={<Home />} />
                   <Route path="/courses" element={<CourseContents />} />

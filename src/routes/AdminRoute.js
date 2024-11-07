@@ -1,17 +1,23 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const AdminRoute = () => {
-//   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const isAdmin = useSelector((state) => state.user.isAdmin); // Assuming you store user roles
+  const location = useLocation();
 
-//   if (false) {
-    // return <Navigate to="/login" />;
-//   }
+  // Check if the current path is for admin
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
-//   if (true) {
-    return <Navigate to="/dashboard" />;
-//   }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (isAdminRoute && !isAdmin) {
+    // If user tries to access an admin route but is not an admin
+    return <Navigate to="/login" />;
+  }
 
   return <Outlet />;
 };
