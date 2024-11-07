@@ -170,8 +170,6 @@
 
 
 
-
-
 import React, { useState } from "react";
 import { FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
 import EditQuestionForm from "./EditQuestionForm";
@@ -185,28 +183,24 @@ const QuestionList = () => {
       text: "What is React?",
       type: "Single Answer",
       answer: ["React is a JavaScript library for building user interfaces."],
-      category: "JavaScript",
-      level: "Beginner",
-      mockTestId: "MT101",
-      questionTypeId: "QT1",
+      mockTestId: 101,
+      questionTypeId: 1,
       createdBy: "Admin",
       status: "Active",
-      createdAt: new Date().toLocaleString(),
-      updatedAt: new Date().toLocaleString(),
+      createdAt: "2024-11-01",
+      updatedAt: "2024-11-06",
     },
     {
       id: 2,
       text: "Which of these are JavaScript frameworks?",
       type: "Multiple Choice",
       answer: ["React", "Angular", "Vue", "Spring"],
-      category: "JavaScript",
-      level: "Intermediate",
-      mockTestId: "MT102",
-      questionTypeId: "QT2",
+      mockTestId: 102,
+      questionTypeId: 2,
       createdBy: "Admin",
       status: "Inactive",
-      createdAt: new Date().toLocaleString(),
-      updatedAt: new Date().toLocaleString(),
+      createdAt: "2024-11-01",
+      updatedAt: "2024-11-06",
     },
   ]);
 
@@ -240,8 +234,8 @@ const QuestionList = () => {
     const newQuestion = {
       ...question,
       id: questions.length + 1,
-      createdAt: new Date().toLocaleString(),
-      updatedAt: new Date().toLocaleString(),
+      createdAt: new Date().toISOString().split("T")[0],
+      updatedAt: new Date().toISOString().split("T")[0],
     };
     setQuestions([...questions, newQuestion]);
     closeModal();
@@ -253,12 +247,9 @@ const QuestionList = () => {
   };
 
   const editQuestion = (updatedQuestion) => {
+    updatedQuestion.updatedAt = new Date().toISOString().split("T")[0];
     setQuestions(
-      questions.map((q) =>
-        q.id === updatedQuestion.id
-          ? { ...updatedQuestion, updatedAt: new Date().toLocaleString() }
-          : q
-      )
+      questions.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
     );
     closeModal();
   };
@@ -285,8 +276,6 @@ const QuestionList = () => {
           <tr className="bg-gray-100 text-gray-700">
             <th className="px-6 py-3 text-left">Question</th>
             <th className="px-6 py-3 text-left">Type</th>
-            <th className="px-6 py-3 text-left">Category</th>
-            <th className="px-6 py-3 text-left">Level</th>
             <th className="px-6 py-3 text-left">Mock Test ID</th>
             <th className="px-6 py-3 text-left">Question Type ID</th>
             <th className="px-6 py-3 text-left">Created By</th>
@@ -301,8 +290,6 @@ const QuestionList = () => {
             <tr key={question.id} className="border-t">
               <td className="px-6 py-4">{question.text}</td>
               <td className="px-6 py-4">{question.type}</td>
-              <td className="px-6 py-4">{question.category}</td>
-              <td className="px-6 py-4">{question.level}</td>
               <td className="px-6 py-4">{question.mockTestId}</td>
               <td className="px-6 py-4">{question.questionTypeId}</td>
               <td className="px-6 py-4">{question.createdBy}</td>
@@ -374,4 +361,3 @@ const QuestionList = () => {
 };
 
 export default QuestionList;
-
