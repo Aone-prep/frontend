@@ -47,6 +47,9 @@ jobs:
 
       - name: Copy SSH keys to VM
         run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "mkdir -p ~/.ssh && chmod 700 ~/.ssh && chown adminuser:adminuser ~/.ssh"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "rm -f ~/.ssh/id_rsa ~/.ssh/id_rsa.pub"
+
           # Create the .ssh directory on the VM with appropriate permissions if it doesn't exist
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
       
