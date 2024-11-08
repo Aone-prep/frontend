@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Header } from "@components/user/layout";
-import { PublicRoute, UserRoute } from "./routes";
+import { PublicRoute, UserRoute, eAdminRoute } from "./routes"; // Add AdminRoute
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminPanel from "@components/admin/AdminPanel";
 import {
@@ -22,9 +22,14 @@ import UserLayout from "@components/user/layout/UserLayout";
 import { useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import CourseDetails from "@components/user/layout/CourseDetailPage";
+import AdminLoginPage from "@pages/admin/login";
+import AdminRoute from "@routes/AdminRoute";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.isAuthenticated);
+  const isAdminAuthenticated = useSelector(
+    (state) => state.isAdminAuthenticated
+  ); // Separate admin auth state
 
   return (
     <Router>
@@ -47,10 +52,10 @@ function App() {
               />
               <Route element={<PublicRoute />}>
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/admin/login" element={<AdminLoginPage />} />
                 <Route path="/register" element={<RegisterForm />} />
               </Route>
               <Route element={<UserRoute />}>
-                <Route path="/admin" element={<AdminPanel />} />
                 <Route element={<UserLayout />}>
                   <Route path="/home" element={<Home />} />
                   <Route path="/courses" element={<CourseContents />} />
@@ -59,9 +64,12 @@ function App() {
                     element={<CourseDetails />}
                   />
                   <Route path="/mock-test" element={<MockTest />} />
-                  {/* <Route path="/test-history" element={<TestHistory />} /> */}
                   <Route path="/forums" element={<Forums />} />
                 </Route>
+              </Route>
+              <Route path="/admin" element={<AdminRoute />}>
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route path="/admin/dashboard" element={<AdminPanel />} />
               </Route>
               <Route path="*" element={<PageNotFound />} />
             </Routes>
