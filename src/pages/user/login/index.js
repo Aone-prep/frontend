@@ -7,39 +7,66 @@ import RegisterForm from "../registerPage";
 import { setUser } from "@redux/slices/userSlice";
 import { showToast } from "@utils/helper";
 import bgImage from "@assets/images/bg.jpeg";
+import { login } from "@services/auth";
 // You need to replace this with your actual Google Client ID
 const LoginForm = ({ toggleForm }) => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === "user@gmail.com" && password === "password") {
-      dispatch(setUser({ currentUser: "Suraj", isAuthenticated: true }));
-      navigate("/home");
-    } else {
-      console.log("I ma here");
-      showToast("error", "Invalid credentials");
+    setLoading(true);
+
+    try {
+      const response = await login(username, password);
+
+      if (response.status === 200) {
+        showToast("success", "Login successful!");
+        const { token } = response;
+        // Store token in localStorage
+        localStorage.setItem("token", token);
+
+        // Update Redux state
+        dispatch(
+          setUser({
+            currentUser: "Suraj",
+            isAuthenticated: true,
+            userType: "visitor",
+          })
+        );
+
+        navigate("/home");
+      }
+    } catch (error) {
+      showToast(
+        "error",
+        error.response?.data?.message || "Login failed!!Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSuccess = (response) => {
     const { credential } = response;
-
-    // Decode the JWT to extract user profile information
     const decodedUser = jwtDecode(credential);
 
-    // Dispatch to your Redux store
-    dispatch(setUser(decodedUser));
+    // Store Google token
+    localStorage.setItem("google_token", credential);
+
+    dispatch(
+      setUser({
+        currentUser: decodedUser.name,
+        isAuthenticated: true,
+        token: credential,
+      })
+    );
 
     navigate("/home");
-    showToast("success", "User logged in successfully");
-  };
-
-  const handleGoogleFailure = (error) => {
-    console.log("Google Sign-In Failed", error);
+    showToast("success", "Login successful!");
   };
 
   return (
@@ -55,10 +82,10 @@ const LoginForm = ({ toggleForm }) => {
           <div className="mb-6">
             <input
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="type"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -73,10 +100,11 @@ const LoginForm = ({ toggleForm }) => {
             />
           </div>
           <button
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 mb-4"
+            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 mb-4 disabled:opacity-50"
             type="submit"
+            disabled={loading}
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
         <div className="flex items-center justify-center mb-4">
@@ -86,7 +114,7 @@ const LoginForm = ({ toggleForm }) => {
         </div>
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
-          onError={handleGoogleFailure}
+          onError={() => showToast("error", "Google sign-in failed")}
         />
         <div className="mt-4 text-center">
           <span className="text-blue-600">Don't have an account? </span>
