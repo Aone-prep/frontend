@@ -1,117 +1,3 @@
-// import React, { useState } from "react";
-
-// const AddQuestionForm = ({ onAdd, onCancel }) => {
-//   const [text, setText] = useState("");
-//   const [type, setType] = useState("Single Answer");
-//   const [answers, setAnswers] = useState(["", "", "", ""]);
-//   const [category, setCategory] = useState("");
-//   const [level, setLevel] = useState("");
-
-//   const handleAddAnswer = () => {
-//     if (answers.length < 4) {
-//       setAnswers([...answers, ""]);
-//     }
-//   };
-
-//   const handleAnswerChange = (index, value) => {
-//     const updatedAnswers = answers.map((answer, i) =>
-//       i === index ? value : answer
-//     );
-//     setAnswers(updatedAnswers);
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     const questionData = {
-//       text,
-//       type,
-//       answer: answers,
-//       category,
-//       level,
-//     };
-//     onAdd(questionData);
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <h3 className="text-lg font-semibold mb-4">Add New Question</h3>
-//       <input
-//         type="text"
-//         value={text}
-//         onChange={(e) => setText(e.target.value)}
-//         placeholder="Question text"
-//         className="border px-2 py-1 mb-4 w-full"
-//         required
-//       />
-//       <select
-//         value={type}
-//         onChange={(e) => setType(e.target.value)}
-//         className="border px-2 py-1 mb-4 w-full"
-//       >
-//         <option value="Single Answer">Single Answer</option>
-//         <option value="Multiple Choice">Multiple Choice</option>
-//       </select>
-//       {type === "Multiple Choice"
-//         ? answers.map((answer, index) => (
-//             <input
-//               key={index}
-//               type="text"
-//               value={answer}
-//               onChange={(e) => handleAnswerChange(index, e.target.value)}
-//               placeholder={`Answer option ${index + 1}`}
-//               className="border px-2 py-1 mb-2 w-full"
-//             />
-//           ))
-//         : answers.length > 0 && (
-//             <input
-//               type="text"
-//               value={answers[0]}
-//               onChange={(e) => setAnswers([e.target.value])}
-//               placeholder="Answer"
-//               className="border px-2 py-1 mb-4 w-full"
-//             />
-//           )}
-//       {type === "Multiple Choice" && answers.length < 4 && (
-//         <button
-//           type="button"
-//           onClick={handleAddAnswer}
-//           className="bg-gray-200 text-blue-500 px-4 py-2 rounded mb-4"
-//         >
-//           + Add Another Answer Option
-//         </button>
-//       )}
-//       <input
-//         type="text"
-//         value={category}
-//         onChange={(e) => setCategory(e.target.value)}
-//         placeholder="Category"
-//         className="border px-2 py-1 mb-4 w-full"
-//       />
-//       <input
-//         type="text"
-//         value={level}
-//         onChange={(e) => setLevel(e.target.value)}
-//         placeholder="Level"
-//         className="border px-2 py-1 mb-4 w-full"
-//       />
-//       <div className="flex justify-end gap-4">
-//         <button type="button" onClick={onCancel} className="text-red-500">
-//           Cancel
-//         </button>
-//         <button
-//           type="submit"
-//           className="bg-blue-500 text-white px-4 py-2 rounded"
-//         >
-//           Save
-//         </button>
-//       </div>
-//     </form>
-//   );
-// };
-
-// export default AddQuestionForm;
-
-
 import React, { useState } from "react";
 
 const AddQuestionForm = ({ onAdd, onCancel }) => {
@@ -122,6 +8,21 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
   const [category, setCategory] = useState("");
   const [level, setLevel] = useState("");
   const [showAllOption, setShowAllOption] = useState(false);
+  const [selectedCourseCategory, setSelectedCourseCategory] = useState("");
+  const [selectedMockTest, setSelectedMockTest] = useState("");
+
+  // Dummy data for course categories and mock tests
+  const courseCategories = [
+    { id: "1", name: "Math" },
+    { id: "2", name: "Science" },
+    { id: "3", name: "History" }
+  ];
+
+  const mockTests = [
+    { id: "1", name: "Mock Test 1" },
+    { id: "2", name: "Mock Test 2" },
+    { id: "3", name: "Mock Test 3" }
+  ];
 
   const handleAddAnswer = () => {
     if (answers.length < 4) {
@@ -142,8 +43,9 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
       text,
       type,
       answer: type === "Single Answer" ? [singleAnswer] : [...answers, ...(showAllOption ? ["All of the Above"] : [])],
-      category,
-      level,
+      category: selectedCourseCategory,
+      mockTest: selectedMockTest,
+      level
     };
     onAdd(questionData);
   };
@@ -208,7 +110,6 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
               required
             />
           ))}
-
           {answers.length < 4 && (
             <button
               type="button"
@@ -218,7 +119,6 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
               + Add Another Option
             </button>
           )}
-
           <div className="mt-4">
             <label className="inline-flex items-center">
               <input
@@ -234,15 +134,37 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
       )}
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Category</label>
-        <input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="Enter category"
+        <label className="block text-gray-700 font-medium mb-2">Course Category</label>
+        <select
+          value={selectedCourseCategory}
+          onChange={(e) => setSelectedCourseCategory(e.target.value)}
           className="border border-gray-300 px-4 py-2 w-full rounded-lg"
           required
-        />
+        >
+          <option value="">Select Course Category</option>
+          {courseCategories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">Mock Test</label>
+        <select
+          value={selectedMockTest}
+          onChange={(e) => setSelectedMockTest(e.target.value)}
+          className="border border-gray-300 px-4 py-2 w-full rounded-lg"
+          required
+        >
+          <option value="">Select Mock Test</option>
+          {mockTests.map((mockTest) => (
+            <option key={mockTest.id} value={mockTest.id}>
+              {mockTest.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mb-4">
@@ -277,3 +199,4 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
 };
 
 export default AddQuestionForm;
+
