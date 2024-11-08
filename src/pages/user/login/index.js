@@ -34,7 +34,7 @@ const LoginForm = ({ toggleForm }) => {
           setUser({
             currentUser: "Suraj",
             isAuthenticated: true,
-            token,
+            userType: "visitor",
           })
         );
 

@@ -5,6 +5,7 @@ const initialState = {
   isAuthenticated: false,
   error: null,
   loading: false,
+  userType: null,
 };
 
 const userSlice = createSlice({
@@ -15,6 +16,7 @@ const userSlice = createSlice({
       state.currentUser = action.payload;
       state.isAuthenticated = true;
       state.error = null;
+      state.userType = action.payload.userType;
     },
     clearUser: (state) => {
       state.currentUser = null;
