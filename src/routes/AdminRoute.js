@@ -7,7 +7,11 @@ const AdminRoute = () => {
     (state) => state.user.isAuthenticated && state.user.userType === "admin"
   );
 
-  return isAdminAuthenticated ? <Outlet /> : <Navigate to="/admin/login" replace />;
+  return isAdminAuthenticated ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/admin/login" replace />
+  );
 };
 
 export default AdminRoute;

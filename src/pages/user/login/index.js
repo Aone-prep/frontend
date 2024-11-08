@@ -37,7 +37,6 @@ const LoginForm = ({ toggleForm }) => {
             userType: "visitor",
           })
         );
-
         navigate("/home");
       }
     } catch (error) {

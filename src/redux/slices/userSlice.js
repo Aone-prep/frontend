@@ -3,8 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   currentUser: null,
   isAuthenticated: false,
-  error: null,
-  loading: false,
   userType: null,
 };
 
@@ -15,13 +13,12 @@ const userSlice = createSlice({
     setUser: (state, action) => {
       state.currentUser = action.payload;
       state.isAuthenticated = true;
-      state.error = null;
       state.userType = action.payload.userType;
     },
     clearUser: (state) => {
       state.currentUser = null;
       state.isAuthenticated = false;
-      state.error = null;
+      state.userType = null;
     },
     setError: (state, action) => {
       state.error = action.payload;

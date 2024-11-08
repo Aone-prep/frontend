@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { showToast } from "@utils/helper";
 import bgImage from "@assets/images/bg.jpeg";
 import { register } from "@services/auth";
@@ -15,8 +13,6 @@ const RegisterForm = ({ toggleForm }) => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({

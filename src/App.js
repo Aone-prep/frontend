@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Header } from "@components/user/layout";
-import { PublicRoute, UserRoute, eAdminRoute } from "./routes"; // Add AdminRoute
+import { PublicRoute, UserRoute } from "./routes";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminPanel from "@components/admin/AdminPanel";
 import {
@@ -26,10 +26,16 @@ import AdminLoginPage from "@pages/admin/login";
 import AdminRoute from "@routes/AdminRoute";
 
 function App() {
-  const isAuthenticated = useSelector((state) => state.isAuthenticated);
-  const isAdminAuthenticated = useSelector(
-    (state) => state.isAdminAuthenticated
-  ); // Separate admin auth state
+  const userAuth = useSelector((state) => ({
+    isAuthenticated: state.user.isAuthenticated,
+    userType: state.user.userType,
+  }));
+
+  // Helper function to determine the redirect path based on auth status
+  const getHomePath = () => {
+    if (!userAuth.isAuthenticated) return "/login";
+    return userAuth.userType === "admin" ? "/admin/dashboard" : "/home";
+  };
 
   return (
     <Router>
@@ -40,21 +46,38 @@ function App() {
             clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
           >
             <Routes>
+              {/* Root redirect */}
               <Route
                 path="/"
-                element={
-                  isAuthenticated ? (
-                    <Navigate to="/home" replace />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
+                element={<Navigate to={getHomePath()} replace />}
               />
+
+              {/* Public routes */}
               <Route element={<PublicRoute />}>
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/admin/login" element={<AdminLoginPage />} />
                 <Route path="/register" element={<RegisterForm />} />
               </Route>
+
+              {/* Admin routes */}
+              <Route path="/admin">
+                <Route
+                  path="login"
+                  element={
+                    userAuth.isAuthenticated &&
+                    userAuth.userType === "admin" ? (
+                      <Navigate to="/admin/dashboard" replace />
+                    ) : (
+                      <AdminLoginPage />
+                    )
+                  }
+                />
+                <Route element={<AdminRoute />}>
+                  <Route path="dashboard" element={<AdminPanel />} />
+                  {/* Add other admin routes here */}
+                </Route>
+              </Route>
+
+              {/* User routes */}
               <Route element={<UserRoute />}>
                 <Route element={<UserLayout />}>
                   <Route path="/home" element={<Home />} />
@@ -67,10 +90,7 @@ function App() {
                   <Route path="/forums" element={<Forums />} />
                 </Route>
               </Route>
-              <Route path="/admin" element={<AdminRoute />}>
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route path="/admin/dashboard" element={<AdminPanel />} />
-              </Route>
+
               <Route path="*" element={<PageNotFound />} />
             </Routes>
           </GoogleOAuthProvider>

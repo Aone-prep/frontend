@@ -3,11 +3,11 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const UserRoute = () => {
-  const isAuthenticated = useSelector(
+  const isUserAuthenticated = useSelector(
     (state) => state.user.isAuthenticated && state.user.userType === "visitor"
   );
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  return isUserAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export default UserRoute;

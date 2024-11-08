@@ -17,11 +17,9 @@ const AdminLoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     try {
       const response = await loginAdmin(email, password);
-console.log(response)
-
       if (response.status === 200) {
         showToast("success", "Login successful!");
         const { token } = response;
@@ -31,9 +29,9 @@ console.log(response)
         // Update Redux state
         dispatch(
           setUser({
-            currentUser: "Suraj",
+            currentUser: "Admin",
             isAuthenticated: true,
-            userType: "admin"
+            userType: "admin",
           })
         );
 
