@@ -47,10 +47,16 @@ jobs:
 
       - name: Copy SSH keys to VM
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa adminuser@${VM_IP}:~/.ssh/
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa.pub adminuser@${VM_IP}:~/.ssh/
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod 400 ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa.pub"
-
+          # Create the .ssh directory on the VM with appropriate permissions if it doesn't exist
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
+      
+          # Copy the private and public SSH keys to the VM
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa adminuser@${VM_IP}:~/.ssh/id_rsa
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa.pub adminuser@${VM_IP}:~/.ssh/id_rsa.pub
+      
+          # Set permissions for the SSH keys on the VM
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod 400 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub"
+    
       - name: Deploy to Azure VM
         run: |
           # Create deployment script
