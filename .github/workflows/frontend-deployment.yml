@@ -64,9 +64,11 @@ jobs:
         run: |
           # Create deployment script
           cat > deploy.sh << 'EOL'
+          sudo su adminuser
           # Ensure GitHub is in known_hosts
           mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          
+          #ssh-keyscan github.com >> ~/.ssh/known_hosts
           
           # Kill existing npm process if any
           pkill -f "npm start" || true
