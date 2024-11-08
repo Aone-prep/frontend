@@ -47,19 +47,9 @@ jobs:
 
       - name: Copy SSH keys to VM
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "mkdir -p ~/.ssh && chmod 700 ~/.ssh && chown adminuser:adminuser ~/.ssh"
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "rm -f ~/.ssh/id_rsa ~/.ssh/id_rsa.pub"
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/known_hosts adminuser@${VM_IP}:~/.ssh/known_hosts
 
-          # Create the .ssh directory on the VM with appropriate permissions if it doesn't exist
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
-      
-          # Copy the private and public SSH keys to the VM
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa adminuser@${VM_IP}:~/.ssh/id_rsa
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa.pub adminuser@${VM_IP}:~/.ssh/id_rsa.pub
-      
-          # Set permissions for the SSH keys on the VM
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod 400 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub"
-    
       - name: Deploy to Azure VM
         run: |
           # Create deployment script
@@ -67,7 +57,9 @@ jobs:
           sudo su adminuser
           # Ensure GitHub is in known_hosts
           mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          cat << EOF >> ~/.ssh/known_hosts
+          github.com ssh-rsa AAAAB3NzaC1yc2EAA
+          EOF
           
           # Kill existing npm process if any
           pkill -f "npm start" || true
