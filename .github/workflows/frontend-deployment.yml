@@ -1,0 +1,64 @@
+name: Frontend Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Create SSH keys from secrets
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+          chmod 644 ~/.ssh/id_rsa.pub
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      
+      - name: Create Azure Credentials
+        run: |
+          mkdir -p $HOME/.azure
+          echo '[default]' > $HOME/.azure/credentials
+          echo 'azure_subscription_id = bac12785-937a-4bd3-93d0-99f6eb81ba22' >> $HOME/.azure/credentials
+          echo 'azure_tenant_id = ed27b597-cea0-4942-8c6f-40e6a78bf47d' >> $HOME/.azure/credentials
+          echo 'azure_username = ${{ secrets.AZURE_USER_NAME }}' >> $HOME/.azure/credentials
+          echo 'azure_password = ${{ secrets.AZURE_PASSWORD }}' >> $HOME/.azure/credentials
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Azure Login
+        run: |
+          az login --use-device-code || az login -u "${{ secrets.AZURE_USER_NAME }}" -p "${{ secrets.AZURE_PASSWORD }}"
+          az account set --subscription "bac12785-937a-4bd3-93d0-99f6eb81ba22"
+
+      - name: Get Azure VM IP
+        id: get-ip
+        run: |
+          VM_IP=$(az network public-ip show --name frontend-public-ip --resource-group myResourceGroup --query "ipAddress" -o tsv)
+          echo "VM_IP=$VM_IP" >> $GITHUB_ENV
+
+      - name: Deploy to Azure VM
+        run: |
+          # Create deployment script
+          cat > deploy.sh << 'EOL'
+          git clone git@github.com:Aone-prep/frontend.git
+          cd frontend
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 16.15.1
+          npm i
+          npm start &
+          EOL
+          
+          # Copy deployment script to VM and execute
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy.sh adminuser@${VM_IP}:~/deploy.sh
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod +x ~/deploy.sh && ~/deploy.sh"
