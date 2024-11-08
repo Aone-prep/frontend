@@ -106,7 +106,7 @@ const LoginForm = ({ toggleForm }) => {
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-        <div className="flex items-center justify-center mb-4">
+        {/* <div className="flex items-center justify-center mb-4">
           <hr className="w-full border-blue-300" />
           <span className="px-2 text-blue-500">OR</span>
           <hr className="w-full border-blue-300" />
@@ -114,7 +114,7 @@ const LoginForm = ({ toggleForm }) => {
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={() => showToast("error", "Google sign-in failed")}
-        />
+        /> */}
         <div className="mt-4 text-center">
           <span className="text-blue-600">Don't have an account? </span>
           <button
