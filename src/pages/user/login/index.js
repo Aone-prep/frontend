@@ -26,7 +26,6 @@ const LoginForm = ({ toggleForm }) => {
       if (response.status === 200) {
         showToast("success", "Login successful!");
         const { token } = response;
-
         // Store token in localStorage
         localStorage.setItem("token", token);
 
@@ -42,7 +41,10 @@ const LoginForm = ({ toggleForm }) => {
         navigate("/home");
       }
     } catch (error) {
-      showToast("error", error.response?.data?.message || "Login failed");
+      showToast(
+        "error",
+        error.response?.data?.message || "Login failed!!Please try again."
+      );
     } finally {
       setLoading(false);
     }
