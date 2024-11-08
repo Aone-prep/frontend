@@ -45,21 +45,71 @@ jobs:
           VM_IP=$(az network public-ip show --name frontend-public-ip --resource-group myResourceGroup --query "ipAddress" -o tsv)
           echo "VM_IP=$VM_IP" >> $GITHUB_ENV
 
+      - name: Copy SSH keys to VM
+        run: |
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa adminuser@${VM_IP}:~/.ssh/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa.pub adminuser@${VM_IP}:~/.ssh/
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub"
+
       - name: Deploy to Azure VM
         run: |
           # Create deployment script
           cat > deploy.sh << 'EOL'
+          # Setup SSH keys for GitHub
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          # Kill existing npm process if any
+          pkill -f "npm start" || true
+
+          # Remove existing frontend directory if exists
+          rm -rf frontend
+
+          # Clone repository with SSH
           git clone git@github.com:Aone-prep/frontend.git
-          git checkout dev
           cd frontend
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
+          git checkout dev
+
+          # Setup NVM and Node.js
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+          # Install Node.js if not already installed
           nvm install 16.15.1
-          npm i
-          npm start &
+          nvm use 16.15.1
+
+          # Install dependencies
+          npm install
+
+          # Create systemd service file for the frontend
+          sudo tee /etc/systemd/system/frontend.service << EOF
+          [Unit]
+          Description=Frontend Node.js Application
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=adminuser
+          WorkingDirectory=/home/adminuser/frontend
+          Environment=PATH=/home/adminuser/.nvm/versions/node/v16.15.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          ExecStart=/home/adminuser/.nvm/versions/node/v16.15.1/bin/npm start
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+          # Reload systemd and start service
+          sudo systemctl daemon-reload
+          sudo systemctl enable frontend
+          sudo systemctl restart frontend
           EOL
           
           # Copy deployment script to VM and execute
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy.sh adminuser@${VM_IP}:~/deploy.sh
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod +x ~/deploy.sh && ~/deploy.sh"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod +x ~/deploy.sh && sudo bash ~/deploy.sh"
+
+      - name: Verify Deployment
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "systemctl status frontend"
