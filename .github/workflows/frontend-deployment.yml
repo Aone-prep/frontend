@@ -49,7 +49,7 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa adminuser@${VM_IP}:~/.ssh/
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ~/.ssh/id_rsa.pub adminuser@${VM_IP}:~/.ssh/
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@${VM_IP} "chmod 400 ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa.pub"
 
       - name: Deploy to Azure VM
         run: |
