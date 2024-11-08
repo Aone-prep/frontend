@@ -6,6 +6,8 @@ import { jwtDecode } from "jwt-decode";
 // import RegisterForm from "../registerPage";
 import { setUser } from "@redux/slices/userSlice";
 import { showToast } from "@utils/helper";
+import { loginAdmin } from "@services/admin/login";
+
 // You need to replace this with your actual Google Client ID
 const AdminLoginPage = () => {
   const [email, setEmail] = useState("");
@@ -13,14 +15,35 @@ const AdminLoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === "user@gmail.com" && password === "password") {
-      dispatch(setUser({ currentUser: "Suraj", isAuthenticated: true }));
-      navigate("/home");
-    } else {
-      console.log("I ma here");
-      showToast("error", "Invalid credentials");
+    
+    try {
+      const response = await loginAdmin(email, password);
+console.log(response)
+
+      if (response.status === 200) {
+        showToast("success", "Login successful!");
+        const { token } = response;
+        // Store token in localStorage
+        localStorage.setItem("token", token);
+
+        // Update Redux state
+        dispatch(
+          setUser({
+            currentUser: "Suraj",
+            isAuthenticated: true,
+            userType: "admin"
+          })
+        );
+
+        navigate("/admin/dashboard");
+      }
+    } catch (error) {
+      showToast(
+        "error",
+        error.response?.data?.message || "Login failed!!Please try again."
+      );
     }
   };
 

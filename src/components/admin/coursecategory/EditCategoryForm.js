@@ -1,10 +1,17 @@
-// AddCategoryForm.js
+// EditCategoryForm.js
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const AddCategoryForm = ({ onAdd, onCancel }) => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+const EditCategoryForm = ({ category, onSave, onCancel }) => {
+  const [name, setName] = useState(category.name);
+  const [description, setDescription] = useState(category.description);
+
+  useEffect(() => {
+    if (category) {
+      setName(category.name);
+      setDescription(category.description);
+    }
+  }, [category]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,14 +19,12 @@ const AddCategoryForm = ({ onAdd, onCancel }) => {
       alert("Please fill in all fields.");
       return;
     }
-    onAdd({ name, description });
-    setName("");
-    setDescription("");
+    onSave({ ...category, name, description });
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-lg font-bold mb-4">Add New Category</h2>
+      <h2 className="text-lg font-bold mb-4">Edit Category</h2>
       <div className="mb-4">
         <label className="block text-gray-700">Name</label>
         <input
@@ -51,11 +56,11 @@ const AddCategoryForm = ({ onAdd, onCancel }) => {
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded"
         >
-          Add Category
+          Save Changes
         </button>
       </div>
     </form>
   );
 };
 
-export default AddCategoryForm;
+export default EditCategoryForm;

@@ -7,7 +7,11 @@ const EditQuestionForm = ({ question, onSave, onCancel }) => {
   const [category, setCategory] = useState(question.category);
   const [level, setLevel] = useState(question.level);
 
-  const handleAddAnswer = () => setAnswers([...answers, ""]);
+  const handleAddAnswer = () => {
+    if (answers.length < 4) {
+      setAnswers([...answers, ""]);
+    }
+  };
 
   const handleAnswerChange = (index, value) => {
     const updatedAnswers = answers.map((answer, i) =>
@@ -70,7 +74,7 @@ const EditQuestionForm = ({ question, onSave, onCancel }) => {
             />
           )}
 
-      {type === "Multiple Choice" && (
+      {type === "Multiple Choice" && answers.length < 4 && (
         <button
           type="button"
           onClick={handleAddAnswer}

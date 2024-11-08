@@ -15,6 +15,8 @@ const CourseList = () => {
       description: "Learn the basics of React",
       level: "Beginner",
       category: "Web Development",
+      createdat: "2 November",
+      updatedat: "monday"
     },
     {
       id: 2,
@@ -25,6 +27,8 @@ const CourseList = () => {
       description: "Deep dive into JavaScript",
       level: "Advanced",
       category: "Programming",
+      createdat: "2 November",
+      updatedat: "monday"
     },
   ]);
 
@@ -87,11 +91,12 @@ const CourseList = () => {
         <thead>
           <tr className="text-left border-b">
             <th className="p-4">Title</th>
-            <th className="p-4">Instructor</th>
             <th className="p-4">Duration</th>
-            <th className="p-4">Lectures</th>
             <th className="p-4">Level</th>
             <th className="p-4">Category</th>
+            
+            <th className="p-4">Created At</th>
+            <th className="p-4">Updated At</th>
             <th className="p-4 text-center">Actions</th>
           </tr>
         </thead>
@@ -99,11 +104,14 @@ const CourseList = () => {
           {courses.map((course) => (
             <tr key={course.id} className="border-b">
               <td className="p-4">{course.title}</td>
-              <td className="p-4">{course.instructor}</td>
+            
               <td className="p-4">{course.duration}</td>
-              <td className="p-4">{course.lectures}</td>
+
               <td className="p-4">{course.level}</td>
               <td className="p-4">{course.category}</td>
+             <td className="p-4">{course.createdat}</td>
+             <td className="p-4">{course.updatedat}</td>
+
               <td className="p-4 text-center">
                 <button
                   onClick={() => openDetail(course)}

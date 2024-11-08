@@ -1,31 +1,18 @@
+// QuestionCategoryList.js
+
 import React, { useState } from "react";
-import { FaEdit, FaInfoCircle, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import AddQuestionCategoryForm from "./AddQuestionCategoryForm";
+import EditQuestionCategoryForm from "./EditQuestionCategoryForm";
 
-import AddCategoryForm from "./AddCategoryForm";
-import EditCategoryForm from "./EditCategoryForm";
-
-const CategoryList = () => {
+const QuestionCategoryList = () => {
   const [categories, setCategories] = useState([
-    {
-      id: 1,
-      name: "Web Development",
-      description: "Courses related to web technologies",
-      createdAt: "2 November",
-      updatedAt: "3 November",
-    },
-    {
-      id: 2,
-      name: "Data Science",
-      description: "Courses on data analytics and machine learning",
-      createdAt: "5 November",
-      updatedAt: "6 November",
-    },
+    { id: 1, name: "General Knowledge", status: "active" },
+    { id: 2, name: "Science", status: "inactive" },
   ]);
 
-  const [editingCategory, setEditingCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -33,23 +20,8 @@ const CategoryList = () => {
     setEditingCategory(null);
   };
 
-  const openDetail = (category) => {
-    setSelectedCategory(category);
-    setIsDetailOpen(true);
-  };
-
-  const closeDetail = () => {
-    setIsDetailOpen(false);
-    setSelectedCategory(null);
-  };
-
   const addCategory = (category) => {
-    const newCategory = {
-      ...category,
-      id: categories.length + 1,
-      createdAt: new Date().toLocaleDateString(),
-      updatedAt: new Date().toLocaleDateString(),
-    };
+    const newCategory = { ...category, id: categories.length + 1 };
     setCategories([...categories, newCategory]);
     closeModal();
   };
@@ -81,14 +53,12 @@ const CategoryList = () => {
       >
         Add New Category
       </button>
-      <h2 className="text-xl font-bold mb-4">Category List</h2>
+      <h2 className="text-xl font-bold mb-4">Question Categories</h2>
       <table className="min-w-full bg-white border rounded-lg">
         <thead>
           <tr className="text-left border-b">
             <th className="p-4">Name</th>
-            <th className="p-4">Description</th>
-            <th className="p-4">Created At</th>
-            <th className="p-4">Updated At</th>
+            <th className="p-4">Status</th>
             <th className="p-4 text-center">Actions</th>
           </tr>
         </thead>
@@ -96,9 +66,7 @@ const CategoryList = () => {
           {categories.map((category) => (
             <tr key={category.id} className="border-b">
               <td className="p-4">{category.name}</td>
-              <td className="p-4">{category.description}</td>
-              <td className="p-4">{category.createdAt}</td>
-              <td className="p-4">{category.updatedAt}</td>
+              <td className="p-4">{category.status}</td>
               <td className="p-4 text-center">
                 <button
                   onClick={() => handleEditClick(category)}
@@ -118,7 +86,7 @@ const CategoryList = () => {
         </tbody>
       </table>
 
-      {/* Modal for Add/Edit */}
+      {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative">
@@ -129,13 +97,16 @@ const CategoryList = () => {
               ✕
             </button>
             {editingCategory ? (
-              <EditCategoryForm
+              <EditQuestionCategoryForm
                 category={editingCategory}
                 onSave={editCategory}
                 onCancel={closeModal}
               />
             ) : (
-              <AddCategoryForm onAdd={addCategory} onCancel={closeModal} />
+              <AddQuestionCategoryForm
+                onAdd={addCategory}
+                onCancel={closeModal}
+              />
             )}
           </div>
         </div>
@@ -144,4 +115,4 @@ const CategoryList = () => {
   );
 };
 
-export default CategoryList;
+export default QuestionCategoryList;
