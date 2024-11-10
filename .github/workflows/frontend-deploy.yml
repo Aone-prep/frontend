@@ -6,13 +6,14 @@ on:
       - dev
 
 env:
-  DOCKER_IMAGE: stalinrijal/frontend
+  DOCKER_IMAGE: stalinrijal/aone-prep/frontend
   DOCKER_TAG: latest
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: dev  # Specify the environment name where secrets are stored
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,19 +24,20 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}  # Using username from environment secrets
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Using password from environment secrets
       
       - name: Build and push Docker image
+        id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
           tags: |
             ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
-            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+            ${{ env.DOCKER_IMAGE }}:${{ github.run_number }}
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
 
       - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+        run: echo "Image Digest: ${{ steps.docker_build.outputs.digest }}"
