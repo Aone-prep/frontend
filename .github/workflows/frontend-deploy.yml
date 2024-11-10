@@ -40,4 +40,4 @@ jobs:
           cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
 
       - name: Image digest
-        run: echo "Image Digest: ${{ steps.docker_build.outputs.digest }}"
+        run: 'echo "Image Digest: ${{ steps.docker_build.outputs.digest }}"'
