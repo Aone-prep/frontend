@@ -37,7 +37,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}  # Use build number for tagging
+            ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}  # Correct tag without comment
 
       - name: Output image digest
         run: 'echo "Image Digest: ${{ steps.docker_build.outputs.digest }}"'
