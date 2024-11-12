@@ -7,10 +7,10 @@ on:
 
 env:
   DOCKER_IMAGE: stalinrijal/aone-prep
-  DOCKER_TAG: ${{ github.run_number }}
+  DOCKER_TAG: frontend-${{ github.run_number }}
 
 jobs:
-  build-and-push:
+  build-test-and-push:
     runs-on: ubuntu-latest
     environment: dev
 
@@ -35,6 +35,23 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
+          push: false  # Don't push yet, we'll push after testing
+          load: true   # Load the image locally for testing
+          tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+
+      - name: Run Unit Tests
+        run: |
+          # Pull the built image
+          docker pull ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+          
+          # Run the container with test command
+          docker run --rm ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} npm test
+
+      - name: Push Image if Tests Pass
+        if: success()
+        uses: docker/build-push-action@v2
+        with:
+          context: .
           push: true
           tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
 
@@ -46,3 +63,8 @@ jobs:
           echo "Pruning images to keep only the 5 latest..."
           docker image prune -f --filter "until=240h"
           docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" | head -n -5 | xargs docker rmi -f
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "::error::Docker build, test, or push failed!"
