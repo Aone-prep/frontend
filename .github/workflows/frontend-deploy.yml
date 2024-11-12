@@ -3,16 +3,16 @@ name: Docker Build and Push
 on:
   push:
     branches:
-      - dev  # This will run the workflow on pushes to the dev branch
+      - dev
 
 env:
   DOCKER_IMAGE: stalinrijal/aone-prep
-  DOCKER_TAG: ${{ github.run_number }}  # Use build number for tagging
+  DOCKER_TAG: ${{ github.run_number }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: dev  # Specify the environment to use secrets from "dev"
+    environment: dev
 
     steps:
       - name: Checkout code
@@ -36,8 +36,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}  # Correct tag without comment
+          tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
 
       - name: Output image digest
         run: 'echo "Image Digest: ${{ steps.docker_build.outputs.digest }}"'
@@ -45,5 +44,5 @@ jobs:
       - name: Prune old images (keep only 5 latest)
         run: |
           echo "Pruning images to keep only the 5 latest..."
-          docker image prune -f --filter "until=240h"  # Removes images older than 10 days (240 hours)
+          docker image prune -f --filter "until=240h"
           docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" | head -n -5 | xargs docker rmi -f
