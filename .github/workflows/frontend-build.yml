@@ -9,6 +9,11 @@ env:
   DOCKER_IMAGE: stalinrijal/aone-prep
   DOCKER_TAG: frontend-${{ github.run_number }}
 
+# Add permissions block at the workflow level
+permissions:
+  contents: read
+  actions: write    # This is required to trigger other workflows
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -51,6 +56,7 @@ jobs:
         if: success()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.AONEPREP_GITHUB_TOKEN }}  # Use a PAT with necessary permissions
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
