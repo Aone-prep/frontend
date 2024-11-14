@@ -7,6 +7,7 @@ import {
   FaQuestion,
   FaChevronDown,
   FaChevronRight,
+  FaCheckCircle,
 } from "react-icons/fa";
 
 const Sidebar = ({ onSelect }) => {
@@ -93,8 +94,23 @@ const Sidebar = ({ onSelect }) => {
               >
                 Question Categories
               </li>
+              
             </ul>
           )}
+           <li
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
+            onClick={() => onSelect("mock-test")}
+          >
+            <FaBook className="mr-3" />
+            MockTest
+          </li>
+          <li
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
+            onClick={() => onSelect("results")}
+          >
+            <FaCheckCircle className="mr-3" />
+            Result
+          </li>
           <li
             className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
             onClick={() => onSelect("settings")}
