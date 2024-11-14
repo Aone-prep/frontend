@@ -20,7 +20,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           chmod 644 ~/.ssh/id_rsa.pub
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          
+
       - name: Create Azure Credentials
         run: |
           mkdir -p $HOME/.azure
@@ -58,23 +58,25 @@ jobs:
 
       - name: Deploy to Azure VM
         env:
-          DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
-          VM_IP: ${{ env.VM_IP }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+            DOCKER_TAG: ${{ github.event.inputs.DOCKER_TAG }}
+            VM_IP: ${{ env.VM_IP }}
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          # Create deployment script
-          cat > deploy.sh << 'EOL'
-          #!/bin/bash
-
-          # Docker login using credentials passed from GitHub Actions
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-
-          # Pull and run the Docker image
-          docker pull stalinrijal/aone-prep:$DOCKER_TAG
-          docker run -d -p 3000:3000 stalinrijal/aone-prep:$DOCKER_TAG
-          EOL
-
-          # Copy deployment script to VM and execute
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy.sh adminuser@$VM_IP:~/deploy.sh
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@$VM_IP "chmod +x ~/deploy.sh && sudo bash ~/deploy.sh"
+            # Create deployment script
+            cat > deploy.sh << EOL
+            #!/bin/bash
+            
+            # Docker login using credentials
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            
+            # Pull and run the Docker image
+            docker pull stalinrijal/aone-prep:${DOCKER_TAG}
+            docker stop \$(docker ps -q) 2>/dev/null || true
+            docker rm \$(docker ps -a -q) 2>/dev/null || true
+            docker run -d -p 3000:3000 stalinrijal/aone-prep:${DOCKER_TAG}
+            EOL
+            
+            # Copy deployment script to VM and execute
+            scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy.sh adminuser@$VM_IP:~/deploy.sh
+            ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa adminuser@$VM_IP "export DOCKER_TAG=${DOCKER_TAG} && export DOCKER_USERNAME='${{ secrets.DOCKER_USERNAME }}' && export DOCKER_PASSWORD='${{ secrets.DOCKER_PASSWORD }}' && chmod +x ~/deploy.sh && sudo -E bash ~/deploy.sh"
