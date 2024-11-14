@@ -1,4 +1,3 @@
-// src/components/admin/mocktest/EditMockTestForm.js
 import React, { useState } from "react";
 
 const EditMockTestForm = ({ mockTest, onSave, onCancel }) => {
@@ -6,10 +5,20 @@ const EditMockTestForm = ({ mockTest, onSave, onCancel }) => {
   const [description, setDescription] = useState(mockTest.description);
   const [duration, setDuration] = useState(mockTest.duration);
   const [maxScore, setMaxScore] = useState(mockTest.maxScore);
+  const [courseName, setCourseName] = useState(mockTest.courseName || "Course 1");
+  const [status, setStatus] = useState(mockTest.status || "Active");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ ...mockTest, name, description, duration, maxScore });
+    onSave({
+      ...mockTest,
+      name,
+      description,
+      duration,
+      maxScore,
+      courseName,
+      status,
+    });
   };
 
   return (
@@ -55,10 +64,39 @@ const EditMockTestForm = ({ mockTest, onSave, onCancel }) => {
           required
         />
       </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">Course Name</label>
+        <select
+          value={courseName}
+          onChange={(e) => setCourseName(e.target.value)}
+          className="border rounded px-3 py-2 w-full"
+          required
+        >
+          <option>Course 1</option>
+          <option>Course 2</option>
+          <option>Course 3</option>
+        </select>
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">Status</label>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="border rounded px-3 py-2 w-full"
+          required
+        >
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
       <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
         Save Changes
       </button>
-      <button onClick={onCancel} className="bg-gray-300 text-gray-700 px-4 py-2 rounded ml-2">
+      <button
+        type="button"
+        onClick={onCancel}
+        className="bg-gray-300 text-gray-700 px-4 py-2 rounded ml-2"
+      >
         Cancel
       </button>
     </form>
