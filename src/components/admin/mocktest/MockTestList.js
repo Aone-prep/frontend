@@ -12,10 +12,10 @@ const MockTestList = () => {
       description: "This is a description for Mock Test 1",
       duration: 60,
       maxScore: 100,
-      resultId: 201,
-      courseName: "Course 1",
+      courseName: "Course 1", // Direct course name entry, no dropdown
       status: "Active",
     },
+    // Add more mock test entries as needed
   ]);
 
   const [editingMockTest, setEditingMockTest] = useState(null);
@@ -43,8 +43,6 @@ const MockTestList = () => {
     const newMockTest = {
       ...mockTest,
       id: mockTests.length + 1,
-      courseName: "Course 1",
-      status: "Active",
     };
     setMockTests([...mockTests, newMockTest]);
     closeModal();
@@ -79,9 +77,9 @@ const MockTestList = () => {
           <tr className="bg-gray-100 text-gray-700">
             <th className="px-6 py-3 text-left">Name</th>
             <th className="px-6 py-3 text-left">Description</th>
-            <th className="px-6 py-3 text-left">Course Name</th>
             <th className="px-6 py-3 text-left">Duration</th>
             <th className="px-6 py-3 text-left">Max Score</th>
+            <th className="px-6 py-3 text-left">Course Name</th>
             <th className="px-6 py-3 text-left">Status</th>
             <th className="px-6 py-3 text-center">Actions</th>
           </tr>
@@ -91,22 +89,9 @@ const MockTestList = () => {
             <tr key={mockTest.id} className="border-t">
               <td className="px-6 py-4">{mockTest.name}</td>
               <td className="px-6 py-4">{mockTest.description}</td>
-              <td className="px-6 py-4">
-                <select
-                  value={mockTest.courseName}
-                  onChange={(e) => {
-                    const updatedMockTest = { ...mockTest, courseName: e.target.value };
-                    editMockTest(updatedMockTest);
-                  }}
-                  className="border rounded p-2"
-                >
-                  <option>Course 1</option>
-                  <option>Course 2</option>
-                  <option>Course 3</option>
-                </select>
-              </td>
               <td className="px-6 py-4">{mockTest.duration} mins</td>
               <td className="px-6 py-4">{mockTest.maxScore}</td>
+              <td className="px-6 py-4">{mockTest.courseName}</td> {/* Course name displayed directly */}
               <td className="px-6 py-4">{mockTest.status}</td>
               <td className="px-6 py-4 text-center">
                 <button
@@ -135,7 +120,7 @@ const MockTestList = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative z-60">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative">
             <button
               onClick={closeModal}
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
@@ -157,7 +142,7 @@ const MockTestList = () => {
 
       {isDetailOpen && selectedMockTest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative z-60">
+          <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative">
             <button
               onClick={closeDetail}
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
