@@ -56,9 +56,9 @@ jobs:
             github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'frontend-deploy.yml',
-              ref: context.ref
+              workflow_id: 'frontend-deploy.yml',  # Name of the Pipeline 2 workflow file
+              ref: context.ref,
               inputs: {
-                DOCKER_TAG: "${{ env.DOCKER_TAG }}"
+                DOCKER_TAG: process.env.DOCKER_TAG  # Pass DOCKER_TAG as an input
               }
-              })
+            })
