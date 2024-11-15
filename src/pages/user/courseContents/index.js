@@ -1,23 +1,44 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Clock, School } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCourseCategoriesData,
+  setCoursesData,
+} from "@redux/slices/courseSlice";
+import { getCourseCategories, getCourses } from "@services/course";
 
 const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const courses = useSelector((state) => state.course.courses);
-  const categories = useSelector((state) => state.course.courseCategories);
 
-  const filteredCourses = courses.filter(
+  const filteredCourses = courses?.filter(
     (course) =>
       (selectedCategory === "All" ||
         course.category.category_name === selectedCategory) &&
       (course.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const coursesResponse = await getCourses();
+        const categoriesResponse = await getCourseCategories();
+
+        dispatch(setCoursesData(coursesResponse?.data));
+        dispatch(setCourseCategoriesData(categoriesResponse?.data));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+  }, [dispatch]);
 
   const handleOnCourseClick = (courseId) => {
     navigate(`/courses/${courseId}`);

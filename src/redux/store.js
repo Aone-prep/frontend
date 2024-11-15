@@ -1,20 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Use localStorage for persistence
-import rootReducer from "./rootReducer"; // Import the combined rootReducer
+import rootReducer from "./rootReducer";
 
-// Persist configuration for the user slice
+// Persist configuration for both user and mockTests slices
 const persistConfig = {
-  key: "user", // The key under which the user state is stored
+  key: "root", // Changed to "root" since we're persisting multiple slices
   storage,
-  whitelist: ["user"], // Only persist the user slice
+  whitelist: ["user"], // Added mockTests to the whitelist
 };
 
-// Apply persistence to the user slice only
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persistedReducer, // Use the persisted reducer here
+  reducer: persistedReducer,
 });
 
 export const persistor = persistStore(store);
