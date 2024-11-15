@@ -33,6 +33,7 @@ import {
   setQuestionsData,
 } from "@redux/slices/mockTestSlice";
 import { getMockTests, getQuestions } from "@services/mock-test";
+import { dummyMockTests, dummyQuestions } from "@utils/dummyData";
 
 const MockTest = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -59,6 +60,8 @@ const MockTest = () => {
         dispatch(setQuestionsData(questionsResponse?.data));
       } catch (error) {
         console.error("Error fetching data:", error);
+        dispatch(setMockTestsData(dummyMockTests));
+        dispatch(setQuestionsData(dummyQuestions));
       }
     }
     fetchData();
