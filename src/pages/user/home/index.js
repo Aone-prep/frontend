@@ -44,6 +44,7 @@ import {
   setCourseCategoriesData,
   setCoursesData,
 } from "@redux/slices/courseSlice";
+import { dummyCategories, dummyCourses } from "@utils/dummyData";
 
 const COLORS = ["#1976d2", "#2e7d32"];
 
@@ -84,6 +85,8 @@ const Home = () => {
         dispatch(setCourseCategoriesData(categoriesResponse?.data));
       } catch (error) {
         console.error("Error fetching data:", error);
+        dispatch(setCoursesData(dummyCourses));
+        dispatch(setCourseCategoriesData(dummyCategories));
       }
     }
 
