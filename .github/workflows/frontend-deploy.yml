@@ -74,7 +74,8 @@ jobs:
             docker pull stalinrijal/aone-prep:${DOCKER_TAG}
             docker stop \$(docker ps -q) 2>/dev/null || true
             docker rm \$(docker ps -a -q) 2>/dev/null || true
-            docker run -d -p 3000:3000 stalinrijal/aone-prep:${DOCKER_TAG}
+            #docker run -d -p 3000:3000 stalinrijal/aone-prep:${DOCKER_TAG}
+            docker run -d -p \$PORT:3000 -e REACT_APP_API_URL=http://\$VM_IP:3030 stalinrijal/aone-prep:\$DOCKER_TAG
             EOL
             
             # Copy deployment script to VM and execute
