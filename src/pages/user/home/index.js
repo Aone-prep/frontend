@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -24,7 +24,6 @@ import {
   Star,
   Add,
 } from "@mui/icons-material";
-
 import {
   LineChart,
   Line,
@@ -39,23 +38,58 @@ import {
   Legend,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
-
-// Sample data for charts
-const progressData = [
-  { name: "Jan", progress: 65 },
-  { name: "Feb", progress: 78 },
-  { name: "Mar", progress: 82 },
-  { name: "Apr", progress: 88 },
-];
-
-const courseCompletion = [
-  { name: "Completed", value: 68 },
-  { name: "In Progress", value: 32 },
-];
+import { getCourseCategories, getCourses } from "@services/course";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCourseCategoriesData,
+  setCoursesData,
+} from "@redux/slices/courseSlice";
 
 const COLORS = ["#1976d2", "#2e7d32"];
 
 const Home = () => {
+  const dispatch = useDispatch();
+  const courses = useSelector((state) => state.course.courses);
+  const categories = useSelector((state) => state.course.courseCategories);
+
+  // Calculate completion stats
+  const totalCourses = courses?.length;
+  const completedCourses = courses?.filter(
+    (course) => course.progress === 100
+  ).length;
+  const inProgressCourses = courses?.filter(
+    (course) => course.progress > 0 && course.progress < 100
+  ).length;
+
+  const courseCompletion = [
+    { name: "Completed", value: (completedCourses / totalCourses) * 100 },
+    { name: "In Progress", value: (inProgressCourses / totalCourses) * 100 },
+  ];
+
+  // Calculate monthly progress data
+  const progressData = [
+    { name: "Jan", progress: 65 },
+    { name: "Feb", progress: 78 },
+    { name: "Mar", progress: 82 },
+    { name: "Apr", progress: 88 },
+  ];
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const coursesResponse = await getCourses();
+        const categoriesResponse = await getCourseCategories();
+
+        dispatch(setCoursesData(coursesResponse?.data));
+        dispatch(setCourseCategoriesData(categoriesResponse?.data));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    fetchData();
+  }, [dispatch]);
+
   return (
     <Box sx={{ bgcolor: "#f5f5f5", minHeight: "100vh", py: 3 }}>
       <Container maxWidth="xl">
@@ -64,32 +98,32 @@ const Home = () => {
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
               icon={<Timeline color="primary" />}
-              title="Daily Goal"
-              value="87% Completed"
+              title="Total Courses"
+              value={`${totalCourses} Available`}
               color="#1976d2"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
               icon={<Book color="success" />}
-              title="Courses"
-              value="12 Active"
+              title="Categories"
+              value={`${categories.length} Active`}
               color="#2e7d32"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
               icon={<AccessTime color="secondary" />}
-              title="Study Time"
-              value="4.5 hrs today"
+              title="In Progress"
+              value={`${inProgressCourses} Courses`}
               color="#9c27b0"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
               icon={<EmojiEvents sx={{ color: "#ed6c02" }} />}
-              title="Achievements"
-              value="15 Earned"
+              title="Completed"
+              value={`${completedCourses} Courses`}
               color="#ed6c02"
             />
           </Grid>
@@ -146,7 +180,9 @@ const Home = () => {
                         fill="#8884d8"
                         paddingAngle={5}
                         dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}%`}
+                        label={({ name, value }) =>
+                          `${name}: ${value.toFixed(1)}%`
+                        }
                       >
                         {courseCompletion.map((entry, index) => (
                           <Cell
@@ -169,64 +205,45 @@ const Home = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} lg={4}>
             <CourseSection
-              title="Recently Watched"
+              title="Recently Added"
+              icon={<Add />}
+              courses={courses.slice(0, 2).map((course) => ({
+                title: course.course_name,
+                subtitle: `Duration: ${course.duration}`,
+                progress: course.progress || 0,
+                icon: <Add />,
+                id: course.id,
+              }))}
+            />
+          </Grid>
+          <Grid item xs={12} lg={4}>
+            <CourseSection
+              title="In Progress"
               icon={<PlayCircleOutline />}
-              courses={[
-                {
-                  title: "Advanced Mathematics",
-                  progress: 75,
-                  subtitle: "2 hours ago",
+              courses={courses
+                .filter(
+                  (course) => course.progress > 0 && course.progress < 100
+                )
+                .slice(0, 2)
+                .map((course) => ({
+                  title: course.course_name,
+                  progress: course.progress,
+                  subtitle: `${course.level} • ${course.category.category_name}`,
                   icon: <PlayCircleOutline />,
-                  id: 15,
-                },
-                {
-                  title: "Physics Fundamentals",
-                  progress: 45,
-                  subtitle: "5 hours ago",
-                  icon: <PlayCircleOutline />,
-                  id: 17,
-                },
-              ]}
+                  id: course.id,
+                }))}
             />
           </Grid>
           <Grid item xs={12} lg={4}>
             <CourseSection
               title="Popular Courses"
               icon={<Star />}
-              courses={[
-                {
-                  title: "Chemistry Basics",
-                  subtitle: "2.5k enrolled",
-                  icon: <Star />,
-                  id: 14,
-                },
-                {
-                  title: "Biology 101",
-                  subtitle: "1.8k enrolled",
-                  icon: <Star />,
-                  id: 19,
-                },
-              ]}
-            />
-          </Grid>
-          <Grid item xs={12} lg={4}>
-            <CourseSection
-              title="Recently Added"
-              icon={<Add />}
-              courses={[
-                {
-                  title: "Environmental Science",
-                  subtitle: "2 days ago",
-                  icon: <Add />,
-                  id: 28,
-                },
-                {
-                  title: "Organic Chemistry",
-                  subtitle: "5 days ago",
-                  icon: <Add />,
-                  id: 35,
-                },
-              ]}
+              courses={courses.slice(0, 2).map((course) => ({
+                title: course.course_name,
+                subtitle: `${course.level} • ${course.category.category_name}`,
+                icon: <Star />,
+                id: course.id,
+              }))}
             />
           </Grid>
         </Grid>

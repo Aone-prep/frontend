@@ -9,6 +9,10 @@ env:
   DOCKER_IMAGE: stalinrijal/aone-prep
   DOCKER_TAG: frontend-${{ github.run_number }}
 
+permissions:
+  contents: read
+  actions: write    # This is required to trigger other workflows
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -30,13 +34,33 @@ jobs:
       - name: Verify Docker Hub login
         run: docker info
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
+          push: false  # Don't push yet, we'll scan first
           tags: ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+          load: true   # Load the image locally for scanning
+
+      - name: Scan local image for vulnerabilities
+        continue-on-error: true  # Continue even if vulnerabilities are found
+        run: |
+          # Install Trivy
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.18.3
+          # Scan the local image
+          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+
+      - name: Push Docker image
+        if: success() || failure()  # Push even if scan finds vulnerabilities
+        run: |
+          docker push ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+
+      # - name: Scan Docker Hub image
+      #   continue-on-error: true
+      #   run: |
+      #     # Scan the pushed image
+      #     trivy image --exit-code 0 --security-checks vuln ${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
 
       - name: Output image digest
         run: 'echo "Image Digest: ${{ steps.docker_build.outputs.digest }}"'
@@ -47,18 +71,18 @@ jobs:
           docker image prune -f --filter "until=240h"
           docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" | head -n -5 | xargs docker rmi -f
       
-      # Trigger pipeline2 workflow only if this job completes successfully
       - name: Trigger Deployment Pipeline
         if: success()
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.AONEPREP_GITHUB_TOKEN }}
           script: |
-            github.rest.actions.createWorkflowDispatch({
+            await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'frontend-deploy.yml',  # Name of the Pipeline 2 workflow file
+              workflow_id: 'frontend-deploy.yml',
               ref: context.ref,
               inputs: {
-                DOCKER_TAG: process.env.DOCKER_TAG  # Pass DOCKER_TAG as an input
+                DOCKER_TAG: '${{ env.DOCKER_TAG }}'
               }
-            })
+            });
