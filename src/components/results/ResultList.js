@@ -77,6 +77,7 @@ const ResultList = () => {
             <th className="px-6 py-3 text-left">Student Name</th>
             <th className="px-6 py-3 text-left">Score</th>
             <th className="px-6 py-3 text-left">Test Date</th>
+            <th className="px-6 py-3 text-left">Mock Test ID</th>
             <th className="px-6 py-3 text-center">Actions</th>
           </tr>
         </thead>
@@ -86,6 +87,7 @@ const ResultList = () => {
               <td className="px-6 py-4">{result.studentName}</td>
               <td className="px-6 py-4">{result.score}</td>
               <td className="px-6 py-4">{result.testDate}</td>
+              <td className="px-6 py-4">{result.mockTestId}</td>
               <td className="px-6 py-4 text-center">
                 <button
                   onClick={() => setEditingResult(result)}
