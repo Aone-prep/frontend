@@ -556,3 +556,108 @@ export const allCourseData = [
     ],
   },
 ];
+
+export const dummyCategories = [
+  {
+    id: 1,
+    category_name: "Web Development",
+    status: true,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+  },
+  {
+    id: 2,
+    category_name: "Data Science",
+    status: true,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+  },
+  {
+    id: 3,
+    category_name: "Machine Learning",
+    status: false,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+  },
+  {
+    id: 4,
+    category_name: "Cybersecurity",
+    status: true,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+  },
+];
+
+export const dummyCourses = [
+  {
+    id: 1,
+    course_name: "Introduction to Web Development",
+    description: "Learn the basics of HTML, CSS, and JavaScript.",
+    duration: "03:00:00",
+    level: "Beginner",
+    category_id: 1,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+    category: {
+      id: 1,
+      category_name: "Web Development",
+      status: true,
+      createdAt: "2024-11-15T04:29:46.000Z",
+      updatedAt: "2024-11-15T04:29:46.000Z",
+    },
+  },
+  {
+    id: 2,
+    course_name: "Advanced JavaScript",
+    description:
+      "Deep dive into JavaScript, covering advanced topics like closures, promises, and async/await.",
+    duration: "04:00:00",
+    level: "Advanced",
+    category_id: 1,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+    category: {
+      id: 1,
+      category_name: "Web Development",
+      status: true,
+      createdAt: "2024-11-15T04:29:46.000Z",
+      updatedAt: "2024-11-15T04:29:46.000Z",
+    },
+  },
+  {
+    id: 3,
+    course_name: "Data Science with Python",
+    description:
+      "Learn how to work with data using Python and popular libraries like Pandas, NumPy, and Matplotlib.",
+    duration: "05:00:00",
+    level: "Intermediate",
+    category_id: 2,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+    category: {
+      id: 2,
+      category_name: "Data Science",
+      status: true,
+      createdAt: "2024-11-15T04:29:46.000Z",
+      updatedAt: "2024-11-15T04:29:46.000Z",
+    },
+  },
+  {
+    id: 4,
+    course_name: "Machine Learning Basics",
+    description:
+      "Introduction to machine learning, focusing on algorithms and models.",
+    duration: "06:00:00",
+    level: "Intermediate",
+    category_id: 3,
+    createdAt: "2024-11-15T04:29:46.000Z",
+    updatedAt: "2024-11-15T04:29:46.000Z",
+    category: {
+      id: 3,
+      category_name: "Machine Learning",
+      status: false,
+      createdAt: "2024-11-15T04:29:46.000Z",
+      updatedAt: "2024-11-15T04:29:46.000Z",
+    },
+  },
+];

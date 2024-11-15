@@ -1,344 +1,387 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
   Container,
-  Grid,
+  TextField,
   Paper,
-  Tab,
-  Tabs,
   Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  LinearProgress,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Divider,
+  IconButton,
+  Alert,
 } from "@mui/material";
-
-// Updated Dummy Data for Courses and Mock Tests
-const courses = [
-  {
-    id: 1,
-    title: "Python for Beginners",
-    mockTests: [
-      {
-        id: 1,
-        name: "Python Fundamentals",
-        questions: [
-          {
-            id: 1,
-            question: "What is the output of print(2 + 3 * 4)?",
-            options: ["20", "14", "18", "26"],
-            answer: 2,
-          },
-          {
-            id: 2,
-            question:
-              "What is the difference between a list and a tuple in Python?",
-            options: [
-              "Lists are mutable, tuples are immutable",
-              "Lists can hold any data type, tuples can only hold one data type",
-              "Lists are ordered, tuples are unordered",
-              "All of the above",
-            ],
-            answer: 0,
-          },
-          {
-            id: 3,
-            question: "What is the purpose of the `pass` statement in Python?",
-            options: [
-              "To create an empty block",
-              "To raise an exception",
-              "To exit the current function",
-              "To print a message to the console",
-            ],
-            answer: 0,
-          },
-          {
-            id: 4,
-            question: "Which of these is a mutable data type in Python?",
-            options: ["string", "tuple", "int", "list"],
-            answer: 3,
-          },
-          {
-            id: 5,
-            question: "What is the output of `print(5 ** 2)`?",
-            options: ["10", "25", "30", "50"],
-            answer: 1,
-          },
-        ],
-      },
-      {
-        id: 2,
-        name: "Python Intermediate",
-        questions: [
-          {
-            id: 1,
-            question:
-              "What is the purpose of the `__init__` method in Python classes?",
-            options: [
-              "To define the initial state of an object",
-              "To create a new instance of a class",
-              "To destroy an object",
-              "To define a custom constructor",
-            ],
-            answer: 0,
-          },
-          {
-            id: 2,
-            question:
-              "What is the difference between a list comprehension and a for loop in Python?",
-            options: [
-              "List comprehensions are faster",
-              "List comprehensions are more readable",
-              "List comprehensions create a new list in a single line",
-              "All of the above",
-            ],
-            answer: 3,
-          },
-          {
-            id: 3,
-            question:
-              "What is the purpose of the `try-except` block in Python?",
-            options: [
-              "To handle exceptions",
-              "To define a function",
-              "To create a loop",
-              "To import a module",
-            ],
-            answer: 0,
-          },
-          {
-            id: 4,
-            question: "Which of these is a built-in function in Python?",
-            options: ["append()", "length()", "print()", "variable()"],
-            answer: 2,
-          },
-          {
-            id: 5,
-            question: "What is the output of `print(3 / 2)`?",
-            options: ["1", "1.5", "2", "3"],
-            answer: 1,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "JavaScript Essentials",
-    mockTests: [
-      {
-        id: 1,
-        name: "JavaScript Fundamentals",
-        questions: [
-          {
-            id: 1,
-            question: "What is the purpose of the `var` keyword in JavaScript?",
-            options: [
-              "To declare a variable with function scope",
-              "To declare a variable with block scope",
-              "To declare a constant",
-              "To declare a variable with global scope",
-            ],
-            answer: 3,
-          },
-          {
-            id: 2,
-            question:
-              "What is the difference between `==` and `===` in JavaScript?",
-            options: [
-              "There is no difference, they are the same",
-              "`==` performs type coercion, `===` does not",
-              "`==` checks for equality, `===` checks for both equality and type",
-              "None of the above",
-            ],
-            answer: 1,
-          },
-          {
-            id: 3,
-            question:
-              "What is the purpose of the `this` keyword in JavaScript?",
-            options: [
-              "To refer to the current object",
-              "To define a variable",
-              "To create a new object",
-              "To access the global scope",
-            ],
-            answer: 0,
-          },
-          {
-            id: 4,
-            question: "Which of these is a primitive data type in JavaScript?",
-            options: ["object", "array", "function", "string"],
-            answer: 3,
-          },
-          {
-            id: 5,
-            question: "What is the output of `console.log(5 + '5')`?",
-            options: ["10", "55", "5 5", "NaN"],
-            answer: 1,
-          },
-        ],
-      },
-    ],
-  },
-];
+import {
+  Timer,
+  ArrowBack,
+  ArrowForward,
+  Check,
+  Flag,
+} from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setMockTestsData,
+  setQuestionsData,
+} from "@redux/slices/mockTestSlice";
+import { getMockTests, getQuestions } from "@services/mock-test";
 
 const MockTest = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedTest, setSelectedTest] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [flaggedQuestions, setFlaggedQuestions] = useState([]);
+  const [testStarted, setTestStarted] = useState(false);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const mockTests = useSelector((state) => state.mockTests.mockTests);
+  const questions = useSelector((state) => state.mockTests.questions);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const mockTestResponse = await getMockTests();
+        const questionsResponse = await getQuestions();
+
+        dispatch(setMockTestsData(mockTestResponse?.data));
+        dispatch(setQuestionsData(questionsResponse?.data));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+    fetchData();
+  }, [dispatch]);
+
+  useEffect(() => {
+    let timer;
+    if (testStarted && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [testStarted, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
 
   const handleCourseSelection = (course) => {
     setSelectedCourse(course);
+    const availableTests = mockTests.filter(
+      (test) => test.course_id === course.id
+    );
     setSelectedTest(null);
     setCurrentQuestion(0);
     setUserAnswers({});
+    setTestStarted(false);
   };
 
   const handleTestSelection = (test) => {
     setSelectedTest(test);
+    const [hours, minutes] = test.duration.split(":");
+    setTimeLeft(parseInt(hours) * 3600 + parseInt(minutes) * 60);
     setCurrentQuestion(0);
     setUserAnswers({});
+    setFlaggedQuestions([]);
   };
 
-  const handleAnswerSelection = (questionId, selectedOption) => {
-    setUserAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: selectedOption,
+  const handleStartTest = () => {
+    setTestStarted(true);
+  };
+
+  const handleAnswerSelection = (questionId, answer, questionType) => {
+    setUserAnswers((prev) => ({
+      ...prev,
+      [questionId]: {
+        answer,
+        questionType,
+      },
     }));
   };
 
-  const handlePreviousQuestion = () => {
-    setCurrentQuestion((prevQuestion) => prevQuestion - 1);
+  const handleFlagQuestion = (questionId) => {
+    setFlaggedQuestions((prev) =>
+      prev.includes(questionId)
+        ? prev.filter((id) => id !== questionId)
+        : [...prev, questionId]
+    );
   };
 
-  const handleNextQuestion = () => {
-    setCurrentQuestion((prevQuestion) => prevQuestion + 1);
+  const getQuestionsByTest = () => {
+    return questions.filter((q) => q.mock_test_id === selectedTest?.id);
   };
 
-  const handleFinish = () => {
-    // Perform scoring and submit the test
-    navigate("/courses");
+  const calculateProgress = () => {
+    const totalQuestions = getQuestionsByTest().length;
+    const answeredQuestions = Object.keys(userAnswers).length;
+    return (answeredQuestions / totalQuestions) * 100;
+  };
+
+  const renderQuestion = (question) => {
+    const isMultipleChoice = question.questionType.name === "Multiple Choice";
+    const currentAnswer = userAnswers[question.id]?.answer || "";
+
+    return (
+      <Card elevation={3} className="w-full mb-6">
+        <CardContent>
+          <Box className="flex justify-between items-center mb-4">
+            <Typography variant="h6" className="font-bold">
+              Question {currentQuestion + 1}
+            </Typography>
+            <IconButton
+              onClick={() => handleFlagQuestion(question.id)}
+              color={
+                flaggedQuestions.includes(question.id) ? "error" : "default"
+              }
+            >
+              <Flag className="w-5 h-5" />
+            </IconButton>
+          </Box>
+
+          <Typography className="mb-4 text-lg">
+            {question.description}
+          </Typography>
+
+          {isMultipleChoice ? (
+            <FormControl component="fieldset" className="w-full">
+              <RadioGroup
+                value={currentAnswer}
+                onChange={(e) =>
+                  handleAnswerSelection(question.id, e.target.value, "multiple")
+                }
+              >
+                <Grid container spacing={2}>
+                  {["A", "B", "C", "D"].map((option) => (
+                    <Grid item xs={12} sm={6} key={option}>
+                      <Paper
+                        elevation={1}
+                        className={`p-3 hover:bg-gray-50 transition-colors ${
+                          currentAnswer === option
+                            ? "bg-blue-50 border-blue-500"
+                            : ""
+                        }`}
+                      >
+                        <FormControlLabel
+                          value={option}
+                          control={<Radio />}
+                          label={question[`option${option}`]}
+                          className="w-full"
+                        />
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </RadioGroup>
+            </FormControl>
+          ) : (
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Your Answer"
+              value={currentAnswer}
+              onChange={(e) =>
+                handleAnswerSelection(question.id, e.target.value, "single")
+              }
+              className="mt-2"
+            />
+          )}
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Mock Tests
-      </Typography>
-
-      {/* Course Selection */}
-      {!selectedCourse && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" gutterBottom>
+    <Container maxWidth="lg" className="py-8">
+      {!selectedCourse ? (
+        <Box>
+          <Typography variant="h4" className="mb-6">
             Select a Course
           </Typography>
-          <Tabs
-            value={selectedCourse?.id || false}
-            onChange={(_, course) =>
-              handleCourseSelection(courses.find((c) => c.id === course))
-            }
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {courses.map((course) => (
-              <Tab key={course.id} label={course.title} value={course.id} />
-            ))}
-          </Tabs>
+          <Grid container spacing={3}>
+            {mockTests
+              .reduce((unique, test) => {
+                if (
+                  !unique.find((item) => item?.course?.id === test?.course?.id)
+                ) {
+                  unique.push(test?.course);
+                }
+                return unique;
+              }, [])
+              .map((course) => (
+                <Grid item xs={12} sm={6} md={4} key={course.id}>
+                  <Card
+                    className="cursor-pointer transform hover:scale-105 transition-transform"
+                    onClick={() => handleCourseSelection(course)}
+                  >
+                    <CardContent>
+                      <Typography variant="h6">{course.course_name}</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {course.description}
+                      </Typography>
+                      <Chip
+                        label={course.level}
+                        size="small"
+                        className="mt-2"
+                        color={
+                          course.level === "Beginner"
+                            ? "success"
+                            : course.level === "Intermediate"
+                            ? "warning"
+                            : "error"
+                        }
+                      />
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+          </Grid>
         </Box>
-      )}
-
-      {/* Mock Test Selection */}
-      {selectedCourse && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" gutterBottom>
-            Select a Mock Test
-          </Typography>
-          <Tabs
-            value={selectedTest?.id || false}
-            onChange={(_, test) =>
-              handleTestSelection(
-                selectedCourse.mockTests.find((t) => t.id === test)
-              )
-            }
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            {selectedCourse.mockTests.map((test) => (
-              <Tab key={test.id} label={test.name} value={test.id} />
-            ))}
-          </Tabs>
-        </Box>
-      )}
-
-      {/* Mock Test Content */}
-      {selectedTest && (
+      ) : !selectedTest ? (
         <Box>
-          <Typography variant="h5" gutterBottom>
-            {selectedTest.name}
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() => setSelectedCourse(null)}
+            className="mb-4"
+          >
+            Back to Courses
+          </Button>
+          <Typography variant="h4" className="mb-6">
+            Available Mock Tests for {selectedCourse.course_name}
           </Typography>
-          <Paper sx={{ p: 4, mb: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Question {currentQuestion + 1}/{selectedTest.questions.length}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              {selectedTest.questions[currentQuestion].question}
-            </Typography>
-            <Grid container spacing={2}>
-              {selectedTest.questions[currentQuestion].options.map(
-                (option, index) => (
-                  <Grid item key={index} xs={12} sm={6}>
-                    <Button
-                      variant="contained"
-                      color={
-                        userAnswers[
-                          selectedTest.questions[currentQuestion].id
-                        ] === index
-                          ? "primary"
-                          : "secondary"
-                      }
-                      fullWidth
-                      onClick={() =>
-                        handleAnswerSelection(
-                          selectedTest.questions[currentQuestion].id,
-                          index
-                        )
-                      }
-                    >
-                      {option}
-                    </Button>
-                  </Grid>
-                )
-              )}
-            </Grid>
-          </Paper>
-
-          {/* Navigation */}
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            {currentQuestion > 0 && (
+          <Grid container spacing={3}>
+            {mockTests
+              .filter((test) => test.course_id === selectedCourse.id)
+              .map((test) => (
+                <Grid item xs={12} sm={6} key={test.id}>
+                  <Card
+                    className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => handleTestSelection(test)}
+                  >
+                    <CardContent>
+                      <Typography variant="h6">{test.name}</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {test.description}
+                      </Typography>
+                      <Divider className="my-2" />
+                      <Box className="flex justify-between items-center">
+                        <Chip
+                          icon={<Timer className="w-4 h-4" />}
+                          label={test.duration}
+                          size="small"
+                        />
+                        <Typography variant="body2">
+                          Max Score: {test.max_score}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+          </Grid>
+        </Box>
+      ) : !testStarted ? (
+        <Box className="max-w-md mx-auto">
+          <Card>
+            <CardContent>
+              <Typography variant="h5" className="mb-4">
+                {selectedTest.name}
+              </Typography>
+              <Alert severity="info" className="mb-4">
+                Please review the test information before starting
+              </Alert>
+              <Box className="space-y-2 mb-4">
+                <Typography>Duration: {selectedTest.duration}</Typography>
+                <Typography>Max Score: {selectedTest.max_score}</Typography>
+                <Typography>
+                  Total Questions: {getQuestionsByTest().length}
+                </Typography>
+              </Box>
               <Button
                 variant="contained"
-                color="secondary"
-                onClick={handlePreviousQuestion}
+                fullWidth
+                onClick={handleStartTest}
+                startIcon={<Check />}
               >
-                Previous Question
+                Start Test
               </Button>
-            )}
-            {currentQuestion < selectedTest.questions.length - 1 ? (
+            </CardContent>
+          </Card>
+        </Box>
+      ) : (
+        <Box>
+          <Box className="mb-4 sticky top-0 bg-white z-10 p-4 shadow-md">
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} md={4}>
+                <Typography variant="h6">{selectedTest.name}</Typography>
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <Chip
+                  icon={<Timer className="w-4 h-4" />}
+                  label={`Time Left: ${formatTime(timeLeft)}`}
+                  color={timeLeft < 300 ? "error" : "default"}
+                  className="w-full"
+                />
+              </Grid>
+              <Grid item xs={6} md={4}>
+                <LinearProgress
+                  variant="determinate"
+                  value={calculateProgress()}
+                  className="h-2 rounded-full"
+                />
+                <Typography variant="caption" className="mt-1">
+                  Progress: {Math.round(calculateProgress())}%
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {renderQuestion(getQuestionsByTest()[currentQuestion])}
+
+          <Box className="flex justify-between mt-4">
+            <Button
+              disabled={currentQuestion === 0}
+              onClick={() => setCurrentQuestion((prev) => prev - 1)}
+              startIcon={<ArrowBack />}
+            >
+              Previous
+            </Button>
+            {currentQuestion < getQuestionsByTest().length - 1 ? (
               <Button
+                onClick={() => setCurrentQuestion((prev) => prev + 1)}
+                endIcon={<ArrowForward />}
                 variant="contained"
-                color="primary"
-                onClick={handleNextQuestion}
               >
-                Next Question
+                Next
               </Button>
             ) : (
               <Button
                 variant="contained"
                 color="success"
-                onClick={handleFinish}
+                onClick={() => {
+                  // Handle test submission
+                  navigate("/courses");
+                }}
+                endIcon={<Check />}
               >
-                Finish Test
+                Submit Test
               </Button>
             )}
           </Box>
