@@ -7,6 +7,7 @@ import {
   setCoursesData,
 } from "@redux/slices/courseSlice";
 import { getCourseCategories, getCourses } from "@services/course";
+import { dummyCategories, dummyCourses } from "@utils/dummyData";
 
 const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -34,6 +35,8 @@ const Courses = () => {
         dispatch(setCourseCategoriesData(categoriesResponse?.data));
       } catch (error) {
         console.error("Error fetching data:", error);
+        dispatch(setCoursesData(dummyCourses));
+        dispatch(setCourseCategoriesData(dummyCategories));
       }
     }
 
