@@ -10,8 +10,8 @@ describe("Login", () => {
     cy.get('input[type="password"]').type("password");
     cy.get('button[type="submit"]').click();
 
-    cy.url().should("include", "/dashboard");
-    cy.contains("Welcome back");
+    cy.url().should("include", "/home");
+    cy.contains("Learning Progress");
   });
 
   it("should show error message with invalid credentials", () => {
