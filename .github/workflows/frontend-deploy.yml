@@ -48,7 +48,7 @@ jobs:
       - name: Get Azure Backend VM IP
         id: get-backend-ip
         run: |
-          Backend_VM_IP=$(az network nic ip-config show --nic-name backend-nic --name backend-ip --resource-group myResourceGroup --query "privateIPAddress" -o tsv)
+          Backend_VM_IP=$(az network public-ip show --name backend-public-ip --resource-group myResourceGroup --query "ipAddress" -o tsv)
           echo "Backend_VM_IP=$Backend_VM_IP" >> $GITHUB_ENV
 
       - name: Checkout code
