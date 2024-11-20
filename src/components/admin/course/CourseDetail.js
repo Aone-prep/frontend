@@ -9,17 +9,18 @@ import {
   FileText,
 } from "lucide-react";
 
-const CourseDetail = ({ course = {}, onClose }) => {
-  // Default values for course properties
+const CourseDetail = ({ course = {}, onClose,categories }) => {
+  
   const {
-    title = "Course Title",
-    instructor = "Not specified",
+    course_name = "Course Title",
     duration = "Not specified",
-    lectures = "Not specified",
     level = "Not specified",
-    category = "Not specified",
+    // category = "Not specified",
     description = "No description available",
   } = course;
+
+  const category = categories.find(cat=>cat.id == course.category_id)
+
 
   const InfoItem = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
@@ -37,7 +38,7 @@ const CourseDetail = ({ course = {}, onClose }) => {
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex justify-between items-start">
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{course_name}</h2>
             <button
               onClick={onClose}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -50,11 +51,9 @@ const CourseDetail = ({ course = {}, onClose }) => {
         {/* Content */}
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <InfoItem icon={User} label="Instructor" value={instructor} />
             <InfoItem icon={Clock} label="Duration" value={duration} />
-            <InfoItem icon={BookOpen} label="Lectures" value={lectures} />
             <InfoItem icon={Award} label="Level" value={level} />
-            <InfoItem icon={Folder} label="Category" value={category} />
+            <InfoItem icon={Folder} label="Category" value={category?.category_name} />
           </div>
 
           {/* Description Section */}
