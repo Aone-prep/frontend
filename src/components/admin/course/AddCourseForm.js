@@ -1,38 +1,44 @@
 import { createCourse } from "@services/admin/courses";
-import React, { useState } from "react";
+import { getCourseCategories } from "@services/admin/courses";
+import React, { useState, useEffect } from "react";
+
 
 const AddCourseForm = ({ onAdd, onCancel }) => {
   const [title, setTitle] = useState("");
-  const [instructor, setInstructor] = useState("");
   const [duration, setDuration] = useState("");
-  const [lectures, setLectures] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState("Beginner");
-  const [category, setCategory] = useState(1);
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]); 
 
-  const categories = [
-    { id: 1, name: "Programming" },
-    { id: 2, name: "Data Science" },
-    { id: 3, name: "Design" },
-    { id: 4, name: "Marketing" },
-  ];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getCourseCategories();
+        setCategories(response?.data); 
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const courseData = {
       course_name: title,
-      instructor,
       duration,
-      lectures,
       description,
       level,
-      category_id: categories.find(cat => cat.name === category)?.id,
+      category_id: category,
     };
 
     try {
-      await createCourse(courseData);
-      onAdd && onAdd();
+      const response = await createCourse(courseData);
+      onAdd && onAdd(response);
     } catch (error) {
       console.error("Error creating course:", error);
     }
@@ -42,37 +48,73 @@ const AddCourseForm = ({ onAdd, onCancel }) => {
     <form onSubmit={handleSubmit} className="p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Add New Course</h2>
 
-      {/* Form fields */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Title Field */}
-        <div>
-          <label className="block mb-1 font-semibold">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="border p-2 w-full rounded"
-            required
-          />
-        </div>
-        
-        {/* Additional fields for instructor, duration, lectures, etc. */}
-        
-        <div>
-          <label className="block mb-1 font-semibold">Category</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border p-2 w-full rounded"
-            required
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.name}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Title Field */}
+      <div className="mb-4">
+        <label className="block mb-1 font-semibold">Course Title</label>
+        <input
+          type="text"
+          value={title}
+
+          onChange={(e) => setTitle(e.target.value)}
+          className="border p-2 w-full rounded"
+          required
+        />
+      </div>
+
+      {/* Duration Field */}
+      <div className="mb-4">
+        <label className="block mb-1 font-semibold">Duration</label>
+        <input
+          type="text"
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          className="border p-2 w-full rounded"
+          required
+        />
+      </div>
+
+      {/* Description Field */}
+      <div className="mb-4">
+        <label className="block mb-1 font-semibold">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="border p-2 w-full rounded"
+          required
+        />
+      </div>
+
+      {/* Level Field */}
+      <div className="mb-4">
+        <label className="block mb-1 font-semibold">Level</label>
+        <select
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          className="border p-2 w-full rounded"
+          required
+        >
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+
+      {/* Category Field */}
+      <div className="mb-4">
+        <label className="block mb-1 font-semibold">Category</label>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="border p-2 w-full rounded"
+          required
+        >
+          <option value="">Select a category</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat?.category_name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex justify-end space-x-2">
