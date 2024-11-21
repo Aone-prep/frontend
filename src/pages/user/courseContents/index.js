@@ -49,7 +49,7 @@ const Courses = () => {
 
   // Get unique categories from courses
   const uniqueCategories = [
-    ...new Set(courses.map((course) => course.category.category_name)),
+    ...new Set(courses.map((course) => course.category?.category_name)),
   ];
 
   return (
@@ -146,7 +146,7 @@ const Courses = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <School className="h-4 w-4" />
-                  <span>{course.category.category_name}</span>
+                  <span>{course.category?.category_name}</span>
                 </div>
               </div>
 

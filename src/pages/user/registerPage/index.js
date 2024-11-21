@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
 import { showToast } from "@utils/helper";
 import bgImage from "@assets/images/bg.jpeg";
 import { register } from "@services/auth";
