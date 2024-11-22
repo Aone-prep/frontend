@@ -44,7 +44,7 @@ const CourseDetails = () => {
   const [rating, setRating] = useState(0);
   const [currentUserCourse, setCurrentUserCourse] = useState(null);
   const [userCourseDetails, setUserCourseDetails] = useState(null);
-
+  const [completedContents, setCompletedContents] = useState(new Set());
 
   useEffect(() => {
     async function fetchUserData() {
@@ -62,6 +62,11 @@ const CourseDetails = () => {
         setCurrentUserCourse(userCourse);
         setUserCourseDetails(userCourseDetails);
   
+        // Initialize completed contents from user progress
+        if (userCourseDetails?.completedContentIds) {
+          setCompletedContents(new Set(userCourseDetails.completedContentIds));
+        }
+
         // Set initial rating and feedback if the course exists
         if (userCourseDetails) {
           setRating(userCourseDetails.rating || 0);
@@ -75,8 +80,76 @@ const CourseDetails = () => {
     fetchUserData();
   }, [courseId]);
 
+  // Calculate and update progress
+  const updateProgress = (newCompletedContents) => {
+    if (!currentUserCourse?.contents?.length) return 0;
+    
+    const progress = Math.round(
+      (newCompletedContents.size / currentUserCourse.contents.length) * 100
+    );
 
+    // Update userCourseDetails with new progress
+    setUserCourseDetails(prev => ({
+      ...prev,
+      progress: progress,
+      completedContentIds: Array.from(newCompletedContents)
+    }));
 
+    // Here you would typically make an API call to update the progress
+    // updateUserCourseProgress(courseId, progress, Array.from(newCompletedContents));
+    
+    return progress;
+  };
+
+  const markContentAsCompleted = (contentIndex) => {
+    const newCompletedContents = new Set(completedContents);
+    console.log(newCompletedContents)
+    newCompletedContents.add(currentUserCourse.contents[contentIndex].id);
+    setCompletedContents(newCompletedContents);
+    updateProgress(newCompletedContents);
+  };
+
+  const markContentAsIncomplete = (contentIndex) => {
+    const newCompletedContents = new Set(completedContents);
+    newCompletedContents.delete(currentUserCourse.contents[contentIndex].id);
+    setCompletedContents(newCompletedContents);
+    updateProgress(newCompletedContents);
+  };
+
+  const handleNext = () => {
+    if (currentUserCourse?.contents?.length && activeContentIndex < currentUserCourse.contents.length - 1) {
+      console.log("Moving to next content");
+      // Mark current content as completed when moving forward
+      markContentAsCompleted(activeContentIndex);
+      setActiveContentIndex(activeContentIndex + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (activeContentIndex > 0) {
+      // Mark current content as incomplete when moving backward
+      markContentAsIncomplete(activeContentIndex);
+      setActiveContentIndex(activeContentIndex - 1);
+    }
+  };
+
+  const handleContentClick = (index) => {
+    // Update progress based on navigation direction
+    if (index > activeContentIndex) {
+      // Moving forward - mark all content up to this point as completed
+      for (let i = activeContentIndex; i <= index; i++) {
+        markContentAsCompleted(i);
+      }
+    } else if (index < activeContentIndex) {
+      // Moving backward - mark skipped content as incomplete
+      for (let i = activeContentIndex; i > index; i--) {
+        markContentAsIncomplete(i);
+      }
+    }
+    setActiveContentIndex(index);
+  };
+
+  // Rest of the component remains the same...
   const getContentIcon = (type) => {
     switch (type) {
       case "video":
@@ -127,21 +200,7 @@ const CourseDetails = () => {
     }
   };
 
-  const handleNext = () => {
-    if (currentUserCourse.contents.length && activeContentIndex < currentUserCourse.contents.length - 1) {
-      setActiveContentIndex(activeContentIndex + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (activeContentIndex > 0) {
-      setActiveContentIndex(activeContentIndex - 1);
-    }
-  };
-
   const handleSubmitFeedback = () => {
-    // Implement your feedback submission logic here
-    // You might want to dispatch an action to update the course rating
     console.log("Feedback submitted:", { rating, feedback, courseId: currentUserCourse.id });
     setFeedback("");
     setRating(0);
@@ -172,12 +231,12 @@ const CourseDetails = () => {
                 <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
                   <Chip
                     icon={<School />}
-                    label={`Status: ${userCourseDetails?.course?.status}`}
+                    label={`Status: ${userCourseDetails?.status}`}
                     variant="outlined"
                   />
                   <Chip
                     icon={<Star />}
-                    label={`Rating: ${currentUserCourse?.course?.rating || 'Not rated'}`}
+                    label={`Rating: ${userCourseDetails?.rating || 'Not rated'}`}
                     variant="outlined"
                   />
                 </Box>
@@ -190,11 +249,11 @@ const CourseDetails = () => {
                     </Typography>
                     <LinearProgress
                       variant="determinate"
-                      value={userCourseDetails?.progress}
+                      value={userCourseDetails?.progress || 0}
                       sx={{ height: 10, borderRadius: 5, mb: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">
-                    {userCourseDetails?.progress || 0}% completed: "Start Learning"
+                      {userCourseDetails?.progress || 0}% completed
                     </Typography>
                   </CardContent>
                 </Card>
@@ -314,14 +373,14 @@ const CourseDetails = () => {
                           "&:hover": { bgcolor: "action.hover" },
                           borderRadius: 1,
                         }}
-                        onClick={() => setActiveContentIndex(index)}
+                        onClick={() => handleContentClick(index)}
                       >
                         <ListItemIcon>{getContentIcon(content.type)}</ListItemIcon>
                         <ListItemText
                           primary={content.title}
                           secondary={`${content.type} content`}
                         />
-                        {index < activeContentIndex && <CheckCircle color="success" />}
+                        {completedContents.has(content.id) && <CheckCircle color="success" />}
                       </ListItem>
                     </React.Fragment>
                   ))}
