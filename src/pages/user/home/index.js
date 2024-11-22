@@ -55,16 +55,16 @@ const Home = () => {
 
   // Calculate completion stats
   const totalCourses = courses?.length;
-  const completedCourses = courses?.filter(
-    (course) => course.progress === 100
-  ).length;
+
+  const courseInProgress = courses?.filter((course) => !course.status).length;
+  const completedCourses = courses?.filter((course) => course.progress).length;
   const inProgressCourses = courses?.filter(
     (course) => course.progress > 0 && course.progress < 100
   ).length;
 
   const courseCompletion = [
-    { name: "Completed", value: (completedCourses / totalCourses) * 100 },
-    { name: "In Progress", value: (inProgressCourses / totalCourses) * 100 },
+    { name: "Completed", value: completedCourses },
+    { name: "In Progress", value: courseInProgress },
   ];
 
   // Calculate monthly progress data

@@ -28,13 +28,13 @@ import AdminRoute from "@routes/AdminRoute";
 function App() {
   const userAuth = useSelector((state) => ({
     isAuthenticated: state.user.isAuthenticated,
-    userType: state.user.userType,
+    role: state.user.role,
   }));
 
   // Helper function to determine the redirect path based on auth status
   const getHomePath = () => {
     if (!userAuth.isAuthenticated) return "/login";
-    return userAuth.userType === "admin" ? "/admin/dashboard" : "/home";
+    return userAuth.role === "admin" ? "/admin/dashboard" : "/home";
   };
 
   return (
@@ -63,8 +63,7 @@ function App() {
                 <Route
                   path="login"
                   element={
-                    userAuth.isAuthenticated &&
-                    userAuth.userType === "admin" ? (
+                    userAuth.isAuthenticated && userAuth.role === "admin" ? (
                       <Navigate to="/admin/dashboard" replace />
                     ) : (
                       <AdminLoginPage />

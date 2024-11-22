@@ -16,6 +16,7 @@ const Courses = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const courses = useSelector((state) => state.course.courses);
+  console.log(courses);
 
   const filteredCourses = courses?.filter(
     (course) =>

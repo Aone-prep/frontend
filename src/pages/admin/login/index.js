@@ -31,7 +31,8 @@ const AdminLoginPage = () => {
           setUser({
             currentUser: "Admin",
             isAuthenticated: true,
-            userType: "admin",
+            role: "admin",
+            user: { email },
           })
         );
 
