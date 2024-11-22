@@ -25,15 +25,20 @@ const LoginForm = ({ toggleForm }) => {
 
       if (response.status === 200) {
         showToast("success", "Login successful!");
-        const { token } = response;
+        console.log(response);
+        const {
+          data: { token, user },
+        } = response;
+
         // Store token in localStorage
         localStorage.setItem("token", token);
         // Update Redux state
         dispatch(
           setUser({
-            currentUser: "Suraj",
+            currentUser: username,
             isAuthenticated: true,
-            userType: "visitor",
+            role: "user",
+            user,
           })
         );
         navigate("/home");
@@ -46,7 +51,8 @@ const LoginForm = ({ toggleForm }) => {
           setUser({
             currentUser: "Suraj",
             isAuthenticated: true,
-            userType: "visitor",
+            role: "user",
+            user: { email: "test_user" },
           })
         );
         navigate("/home");

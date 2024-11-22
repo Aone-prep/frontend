@@ -17,3 +17,13 @@ export const getCourseCategories = async () => {
     throw error.response.data;
   }
 };
+
+// Get course by ID
+export const getCourseById = async (id) => {
+  try {
+    const response = await api.get(`/user/courses/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};

@@ -9,8 +9,7 @@ import {
   FileText,
 } from "lucide-react";
 
-const CourseDetail = ({ course = {}, onClose,categories }) => {
-  
+const CourseDetail = ({ course = {}, onClose, categories }) => {
   const {
     course_name = "Course Title",
     duration = "Not specified",
@@ -19,8 +18,7 @@ const CourseDetail = ({ course = {}, onClose,categories }) => {
     description = "No description available",
   } = course;
 
-  const category = categories.find(cat=>cat.id == course.category_id)
-
+  const category = categories.find((cat) => cat.id == course.category_id);
 
   const InfoItem = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
@@ -53,7 +51,11 @@ const CourseDetail = ({ course = {}, onClose,categories }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <InfoItem icon={Clock} label="Duration" value={duration} />
             <InfoItem icon={Award} label="Level" value={level} />
-            <InfoItem icon={Folder} label="Category" value={category?.category_name} />
+            <InfoItem
+              icon={Folder}
+              label="Category"
+              value={category?.category_name}
+            />
           </div>
 
           {/* Description Section */}

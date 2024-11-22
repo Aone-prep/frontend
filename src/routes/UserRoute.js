@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const UserRoute = () => {
   const isUserAuthenticated = useSelector(
-    (state) => state.user.isAuthenticated && state.user.userType === "visitor"
+    (state) => state.user.isAuthenticated && state.user.role === "user"
   );
 
   return isUserAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;

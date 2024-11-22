@@ -5,3 +5,4 @@ export { default as CourseContents } from "./courseContents";
 export { default as MockTest } from "./mockTest";
 export { default as Forums } from "./forums";
 export { default as RegisterForm } from "./registerPage";
+export { default as TestHistory } from "./testHistory";

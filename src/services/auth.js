@@ -21,3 +21,12 @@ export const register = async (userData) => {
 export const logout = () => {
   localStorage.removeItem("token");
 };
+
+export const getLoggedUser = async () => {
+  try {
+    const response = await api.get(`/user/info`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
