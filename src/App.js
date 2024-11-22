@@ -17,6 +17,7 @@ import {
   CourseContents,
   MockTest,
   Forums,
+  TestHistory,
 } from "@pages/user";
 import UserLayout from "@components/user/layout/UserLayout";
 import { useSelector } from "react-redux";
@@ -86,7 +87,7 @@ function App() {
                     element={<CourseDetails />}
                   />
                   <Route path="/mock-test" element={<MockTest />} />
-                  <Route path="/forums" element={<Forums />} />
+                  <Route path="/test-history" element={<TestHistory />} />
                 </Route>
               </Route>
 

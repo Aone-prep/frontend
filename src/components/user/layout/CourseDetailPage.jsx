@@ -33,29 +33,27 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import { getCourseById } from "@services/course";
-import { getUserById } from "@services/admin/users";
 import { getLoggedUser } from "@services/auth";
+import { useSelector } from "react-redux";
 
 const CourseDetails = () => {
   const { courseId } = useParams();
   const [activeContentIndex, setActiveContentIndex] = useState(0);
   const [feedback, setFeedback] = useState("");
-  const [loggedInUser, setLoggedInUser] = useState(null);
   const [rating, setRating] = useState(0);
   const [currentUserCourse, setCurrentUserCourse] = useState(null);
   const [userCourseDetails, setUserCourseDetails] = useState(null);
   const [completedContents, setCompletedContents] = useState(new Set());
 
+  const loggedInUser = useSelector((state) => state?.user?.loggedUser); 
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await getLoggedUser();
-        setLoggedInUser(response);
-
+        
         let userCourse = await getCourseById(courseId);
   
         // Find or fetch the current course data
-        let userCourseDetails = response.userCourses.find(
+        let userCourseDetails = loggedInUser?.userCourses?.find(
           (uc) => uc.course.id === parseInt(courseId)
         );
         
@@ -103,7 +101,6 @@ const CourseDetails = () => {
 
   const markContentAsCompleted = (contentIndex) => {
     const newCompletedContents = new Set(completedContents);
-    console.log(newCompletedContents)
     newCompletedContents.add(currentUserCourse.contents[contentIndex].id);
     setCompletedContents(newCompletedContents);
     updateProgress(newCompletedContents);
@@ -118,7 +115,6 @@ const CourseDetails = () => {
 
   const handleNext = () => {
     if (currentUserCourse?.contents?.length && activeContentIndex < currentUserCourse.contents.length - 1) {
-      console.log("Moving to next content");
       // Mark current content as completed when moving forward
       markContentAsCompleted(activeContentIndex);
       setActiveContentIndex(activeContentIndex + 1);
