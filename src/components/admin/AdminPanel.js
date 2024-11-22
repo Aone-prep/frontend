@@ -10,6 +10,7 @@ import QuestionCategoryList from "./question-category/QuestionCategoryList";
 import AddMockTestForm from "./mocktest/AddMockTestForm"; // Import AddMockTestForm
 import MockTestList from "./mocktest/MockTestList";
 import ResultList from "@components/results/ResultList";
+import CourseContentList from "./coursecontent/CourseContentList";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([
@@ -107,6 +108,8 @@ const AdminPanel = () => {
         return <MockTestList />;
       case "results":
         return <ResultList />;
+        case "coursecontent":
+          return <CourseContentList />;
       case "settings":
         return <h2 className="text-2xl font-bold">Settings Page</h2>;
       default:
