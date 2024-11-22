@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -34,36 +33,48 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import { getCourseById } from "@services/course";
+import { getUserById } from "@services/admin/users";
+import { getLoggedUser } from "@services/auth";
 
 const CourseDetails = () => {
   const { courseId } = useParams();
   const [activeContentIndex, setActiveContentIndex] = useState(0);
   const [feedback, setFeedback] = useState("");
-  const [course, setSelectedCourse] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(null);
   const [rating, setRating] = useState(0);
+  const [currentUserCourse, setCurrentUserCourse] = useState(null);
+  const [userCourseDetails, setUserCourseDetails] = useState(null);
+
 
   useEffect(() => {
-    async function fetchCourse() {
+    async function fetchUserData() {
       try {
-        const response = await getCourseById(courseId);
-        setSelectedCourse(response);
+        const response = await getLoggedUser();
+        setLoggedInUser(response);
+
+        let userCourse = await getCourseById(courseId);
+  
+        // Find or fetch the current course data
+        let userCourseDetails = response.userCourses.find(
+          (uc) => uc.course.id === parseInt(courseId)
+        );
+        
+        setCurrentUserCourse(userCourse);
+        setUserCourseDetails(userCourseDetails);
+  
+        // Set initial rating and feedback if the course exists
+        if (userCourseDetails) {
+          setRating(userCourseDetails.rating || 0);
+          setFeedback(userCourseDetails.comment || "");
+        }
       } catch (error) {
-        console.error("Error fetching course:", error);
+        console.error("Error fetching user or course data:", error);
       }
     }
-    fetchCourse();
+  
+    fetchUserData();
   }, [courseId]);
 
-
-  // Get course from Redux state
-  const courses = useSelector((state) => state.course.courses);
-  // const course = courses.find(course => course.id === parseInt(id));
-  console.log("🚀 ~ file: CourseDetailPage.jsx:46 ~ CourseDetails ~ course:", courses)
-
-  // Logged in user from Redux state (adjust selector based on your state structure)
-  const loggedId = useSelector(state => state?.user?.id);
-
-  
 
 
   const getContentIcon = (type) => {
@@ -117,7 +128,7 @@ const CourseDetails = () => {
   };
 
   const handleNext = () => {
-    if (activeContentIndex < course.contents.length - 1) {
+    if (currentUserCourse.contents.length && activeContentIndex < currentUserCourse.contents.length - 1) {
       setActiveContentIndex(activeContentIndex + 1);
     }
   };
@@ -131,12 +142,12 @@ const CourseDetails = () => {
   const handleSubmitFeedback = () => {
     // Implement your feedback submission logic here
     // You might want to dispatch an action to update the course rating
-    console.log("Feedback submitted:", { rating, feedback, courseId: course.id });
+    console.log("Feedback submitted:", { rating, feedback, courseId: currentUserCourse.id });
     setFeedback("");
     setRating(0);
   };
 
-  if (!course) {
+  if (!currentUserCourse) {
     return (
       <Container>
         <Typography variant="h5">Course not found</Typography>
@@ -153,25 +164,20 @@ const CourseDetails = () => {
             <Grid container spacing={3} alignItems="center">
               <Grid item xs={12} md={8}>
                 <Typography variant="h4" gutterBottom>
-                  {course.course_name}
+                  {currentUserCourse.course_name}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>
-                  {course.description}
+                  {currentUserCourse.description}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
                   <Chip
-                    icon={<AccessTime />}
-                    label={`Duration: ${course.duration}`}
-                    variant="outlined"
-                  />
-                  <Chip
                     icon={<School />}
-                    label={`Level: ${course.level}`}
+                    label={`Status: ${userCourseDetails?.course?.status}`}
                     variant="outlined"
                   />
                   <Chip
                     icon={<Star />}
-                    label={course.category.category_name}
+                    label={`Rating: ${currentUserCourse?.course?.rating || 'Not rated'}`}
                     variant="outlined"
                   />
                 </Box>
@@ -184,11 +190,11 @@ const CourseDetails = () => {
                     </Typography>
                     <LinearProgress
                       variant="determinate"
-                      value={(activeContentIndex / course.contents.length) * 100}
+                      value={userCourseDetails?.progress}
                       sx={{ height: 10, borderRadius: 5, mb: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">
-                      {activeContentIndex} of {course.contents.length} contents completed
+                    {userCourseDetails?.progress || 0}% completed: "Start Learning"
                     </Typography>
                   </CardContent>
                 </Card>
@@ -204,14 +210,14 @@ const CourseDetails = () => {
               <CardContent>
                 <Box sx={{ position: "relative" }}>
                   <Paper sx={{ p: 3, mb: 3 }}>
-                    {course.contents[activeContentIndex] && (
+                    {currentUserCourse?.contents[activeContentIndex] && (
                       <>
                         <Typography variant="h5" gutterBottom>
-                          {course.contents[activeContentIndex].title}
+                          {currentUserCourse?.contents[activeContentIndex].title}
                         </Typography>
 
                         <Box sx={{ my: 4 }}>
-                          {renderContent(course.contents[activeContentIndex])}
+                          {renderContent(currentUserCourse?.contents[activeContentIndex])}
                         </Box>
 
                         <Box
@@ -231,7 +237,7 @@ const CourseDetails = () => {
                           <Button
                             variant="contained"
                             onClick={handleNext}
-                            disabled={activeContentIndex === course.contents.length - 1}
+                            disabled={activeContentIndex === currentUserCourse?.contents.length - 1}
                             endIcon={<ArrowForward />}
                           >
                             Next
@@ -242,14 +248,16 @@ const CourseDetails = () => {
                   </Paper>
 
                   {/* Feedback Section */}
-                  {/* <Paper sx={{ p: 3, mt: 3 }}>
+                  <Paper sx={{ p: 3, mt: 3 }}>
                     <Typography variant="h6" gutterBottom>
                       Course Feedback
                     </Typography>
                     {loggedInUser && (
                       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                         <Avatar src={loggedInUser.avatar} sx={{ mr: 2 }} />
-                        <Typography variant="subtitle1">{loggedInUser.name}</Typography>
+                        <Typography variant="subtitle1">
+                          {loggedInUser.first_name} {loggedInUser.last_name}
+                        </Typography>
                       </Box>
                     )}
                     <Box sx={{ mb: 2 }}>
@@ -282,7 +290,7 @@ const CourseDetails = () => {
                     >
                       Submit Feedback
                     </Button>
-                  </Paper> */}
+                  </Paper>
                 </Box>
               </CardContent>
             </Card>
@@ -296,7 +304,7 @@ const CourseDetails = () => {
                   Course Contents
                 </Typography>
                 <List>
-                  {course.contents.map((content, index) => (
+                  {currentUserCourse?.contents.map((content, index) => (
                     <React.Fragment key={content.id}>
                       {index > 0 && <Divider />}
                       <ListItem

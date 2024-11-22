@@ -3,7 +3,7 @@ import api from "@services/api";
 // Create a new user
 export const createUser = async (userData) => {
   try {
-    const response = await api.post("/user/register", userData);
+    const response = await api.post("/users", userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -13,7 +13,7 @@ export const createUser = async (userData) => {
 // Update an existing user
 export const updateUser = async (id, userData) => {
   try {
-    const response = await api.put(`/user/${id}`, userData);
+    const response = await api.put(`/users/${id}`, userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -23,7 +23,7 @@ export const updateUser = async (id, userData) => {
 // Delete a user
 export const deleteUser = async (id) => {
   try {
-    const response = await api.delete(`/user/${id}`);
+    const response = await api.delete(`/users/${id}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -33,7 +33,7 @@ export const deleteUser = async (id) => {
 // Get a single user by ID
 export const getUserById = async (id) => {
   try {
-    const response = await api.get(`/user/${id}`);
+    const response = await api.get(`/users/${id}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
