@@ -1,66 +1,99 @@
-// src/components/admin/result/AddResultForm.js
 import React, { useState } from "react";
 
 const AddResultForm = ({ onAdd, onCancel }) => {
   const [studentName, setStudentName] = useState("");
-  const [score, setScore] = useState("");
-  const [testDate, setTestDate] = useState("");
-  const [mockTestId, setMockTestId] = useState("");
+  const [description, setDescription] = useState("");  // New field
+  const [obtainedMarks, setObtainedMarks] = useState("");  // New field
+  const [passMark, setPassMark] = useState("");  // New field
+  const [fullMark, setFullMark] = useState("");  // New field
+  const [mockTestName, setMockTestName] = useState("");  // New field
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd({ studentName, score, testDate, mockTestId });
+    const newResult = {
+      studentName,
+      description,
+      obtainedMarks,
+      passMark,
+      fullMark,
+      mockTestName,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    onAdd(newResult); // Pass the new result to the parent component
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3 className="text-xl font-bold mb-4">Add New Result</h3>
       <div className="mb-4">
-        <label className="block text-gray-700">Student Name</label>
+        <label className="block text-sm font-medium text-gray-700">Student Name</label>
         <input
           type="text"
           value={studentName}
           onChange={(e) => setStudentName(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
-          required
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+          placeholder="Enter student name"
         />
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700">Score</label>
+        <label className="block text-sm font-medium text-gray-700">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Obtained Marks</label>
         <input
           type="number"
-          value={score}
-          onChange={(e) => setScore(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
-          required
+          value={obtainedMarks}
+          onChange={(e) => setObtainedMarks(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
         />
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700">Test Date</label>
+        <label className="block text-sm font-medium text-gray-700">Pass Mark</label>
         <input
-          type="date"
-          value={testDate}
-          onChange={(e) => setTestDate(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
-          required
+          type="number"
+          value={passMark}
+          onChange={(e) => setPassMark(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
         />
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700">Mock Test ID</label>
+        <label className="block text-sm font-medium text-gray-700">Full Mark</label>
+        <input
+          type="number"
+          value={fullMark}
+          onChange={(e) => setFullMark(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Mock Test Name</label>
         <input
           type="text"
-          value={mockTestId}
-          onChange={(e) => setMockTestId(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
-          required
+          value={mockTestName}
+          onChange={(e) => setMockTestName(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
         />
       </div>
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-        Add Result
-      </button>
-      <button onClick={onCancel} className="bg-gray-300 text-gray-700 px-4 py-2 rounded ml-2">
-        Cancel
-      </button>
+      <div className="flex justify-between">
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Save Result
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 };

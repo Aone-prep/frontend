@@ -1,4 +1,3 @@
-// src/components/admin/result/ResultList.js
 import React, { useState } from "react";
 import { FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
 import AddResultForm from "./AddResultForm";
@@ -10,9 +9,14 @@ const ResultList = () => {
     {
       id: 1,
       studentName: "John Doe",
-      score: 80,
-      testDate: "2024-11-12",
       mockTestId: 1,
+      description: "Excellent performance",
+      obtainedMarks: 80,
+      passMark: 50,
+      fullMark: 100,
+      mockTestName: "Mock Test 1",
+      createdAt: "2024-11-01",
+      updatedAt: "2024-11-12",
     },
     // Add more result entries as needed
   ]);
@@ -42,6 +46,8 @@ const ResultList = () => {
     const newResult = {
       ...result,
       id: results.length + 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     setResults([...results, newResult]);
     closeModal();
@@ -75,9 +81,13 @@ const ResultList = () => {
         <thead>
           <tr className="bg-gray-100 text-gray-700">
             <th className="px-6 py-3 text-left">Student Name</th>
-            <th className="px-6 py-3 text-left">Score</th>
-            <th className="px-6 py-3 text-left">Test Date</th>
-            <th className="px-6 py-3 text-left">Mock Test ID</th>
+            <th className="px-6 py-3 text-left">Mock Test Name</th>
+            <th className="px-6 py-3 text-left">Pass Mark</th>
+            <th className="px-6 py-3 text-left">Obtained Marks</th>
+            <th className="px-6 py-3 text-left">Full Marks</th>
+            <th className="px-6 py-3 text-left">Description</th>
+            <th className="px-6 py-3 text-left">Created At</th>
+            <th className="px-6 py-3 text-left">Updated At</th>
             <th className="px-6 py-3 text-center">Actions</th>
           </tr>
         </thead>
@@ -85,9 +95,13 @@ const ResultList = () => {
           {results.map((result) => (
             <tr key={result.id} className="border-t">
               <td className="px-6 py-4">{result.studentName}</td>
-              <td className="px-6 py-4">{result.score}</td>
-              <td className="px-6 py-4">{result.testDate}</td>
-              <td className="px-6 py-4">{result.mockTestId}</td>
+              <td className="px-6 py-4">{result.mockTestName}</td>
+              <td className="px-6 py-4">{result.passMark}</td>
+              <td className="px-6 py-4">{result.obtainedMarks}</td>
+              <td className="px-6 py-4">{result.fullMark}</td>
+              <td className="px-6 py-4">{result.description}</td>
+              <td className="px-6 py-4">{result.createdAt}</td>
+              <td className="px-6 py-4">{result.updatedAt}</td>
               <td className="px-6 py-4 text-center">
                 <button
                   onClick={() => setEditingResult(result)}
