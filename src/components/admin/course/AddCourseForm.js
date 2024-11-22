@@ -2,20 +2,19 @@ import { createCourse } from "@services/admin/courses";
 import { getCourseCategories } from "@services/admin/courses";
 import React, { useState, useEffect } from "react";
 
-
 const AddCourseForm = ({ onAdd, onCancel }) => {
   const [title, setTitle] = useState("");
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
   const [level, setLevel] = useState("Beginner");
   const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState([]); 
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await getCourseCategories();
-        setCategories(response?.data); 
+        setCategories(response?.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -23,7 +22,6 @@ const AddCourseForm = ({ onAdd, onCancel }) => {
 
     fetchCategories();
   }, []);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +52,6 @@ const AddCourseForm = ({ onAdd, onCancel }) => {
         <input
           type="text"
           value={title}
-
           onChange={(e) => setTitle(e.target.value)}
           className="border p-2 w-full rounded"
           required

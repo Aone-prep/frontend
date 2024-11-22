@@ -56,6 +56,12 @@ const Sidebar = ({ onSelect }) => {
             <ul className="ml-8 mt-2 space-y-2">
               <li
                 className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("categories")}
+              >
+                Categories
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
                 onClick={() => onSelect("courses")}
               >
                 All Courses
@@ -63,9 +69,9 @@ const Sidebar = ({ onSelect }) => {
 
               <li
                 className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
-                onClick={() => onSelect("categories")}
+                onClick={() => onSelect("coursecontent")}
               >
-                Categories
+                Course Content
               </li>
             </ul>
           )}
