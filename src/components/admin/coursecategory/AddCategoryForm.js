@@ -4,17 +4,15 @@ import React, { useState } from "react";
 
 const AddCategoryForm = ({ onAdd, onCancel }) => {
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !description) {
+    if (!name) {
       alert("Please fill in all fields.");
       return;
     }
-    onAdd({ name, description });
+    onAdd({ category_name: name });
     setName("");
-    setDescription("");
   };
 
   return (
@@ -30,15 +28,7 @@ const AddCategoryForm = ({ onAdd, onCancel }) => {
           required
         />
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Description</label>
-        <textarea
-          className="w-full p-2 border rounded"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </div>
+
       <div className="flex justify-end">
         <button
           type="button"

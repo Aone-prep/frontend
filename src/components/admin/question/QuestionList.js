@@ -1,51 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
 import EditQuestionForm from "./EditQuestionForm";
 import AddQuestionForm from "./AddQuestionForm";
 import QuestionDetail from "./QuestionDetail";
+import {
+  getQuestions,
+  createQuestion,
+  updateQuestion,
+  deleteQuestion,
+  getQuestionTypes,
+} from "@services/admin/questions"; // API services
+import { getMocktests } from "@services/admin/mockTest";
 
 const QuestionList = () => {
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      text: "What is React?",
-      type: "Single Answer",
-      answer: ["React is a JavaScript library for building user interfaces."],
-      mockTestId: 101,
-      questionTypeId: 1,
-      createdBy: "Admin",
-      status: "Active",
-      createdAt: "2024-11-01",
-      updatedAt: "2024-11-06",
-    },
-    {
-      id: 2,
-      text: "Which of these are JavaScript frameworks?",
-      type: "Multiple Choice",
-      answer: ["React", "Angular", "Vue", "Spring"],
-      mockTestId: 102,
-      questionTypeId: 2,
-      createdBy: "Admin",
-      status: "Inactive",
-      createdAt: "2024-11-01",
-      updatedAt: "2024-11-06",
-    },
-  ]);
-
+  const [questions, setQuestions] = useState([]);
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [questionTypes, setQuestionTypes] = useState([]);
+  const [mockTests, setMockTests] = useState([]);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await getQuestions();
+        const questionTypesResponse = await getQuestionTypes();
+        setQuestions(response || []);
+        const questionMockTests = await getMocktests();
+        setMockTests(questionMockTests || []);
+        setQuestionTypes(questionTypesResponse || []);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingQuestion(null);
-  };
-
-  const handleViewQuestion = (question) => {
-    setSelectedQuestion(question);
-    openDetail(question);
   };
 
   const openDetail = (question) => {
@@ -58,15 +54,44 @@ const QuestionList = () => {
     setSelectedQuestion(null);
   };
 
-  const addQuestion = (question) => {
-    const newQuestion = {
-      ...question,
-      id: questions.length + 1,
-      createdAt: new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
-    };
-    setQuestions([...questions, newQuestion]);
-    closeModal();
+  const handleAddQuestion = async (newQuestion) => {
+    try {
+      // Add `questionType` to the new question
+      const questionType = questionTypes.find(
+        (type) => type.id === newQuestion.questionTypeId
+      );
+      const newQuestionWithType = { ...newQuestion, questionType };
+
+      const response = await createQuestion(newQuestionWithType);
+      setQuestions([...questions, response.data]);
+      closeModal();
+    } catch (error) {
+      console.error("Error adding question:", error);
+    }
+  };
+
+  const handleEditQuestion = async (updatedQuestion) => {
+    try {
+      const response = await updateQuestion(
+        updatedQuestion.id,
+        updatedQuestion
+      );
+      setQuestions(
+        questions.map((q) => (q.id === updatedQuestion.id ? response.data : q))
+      );
+      closeModal();
+    } catch (error) {
+      console.error("Error updating question:", error);
+    }
+  };
+
+  const handleDeleteQuestion = async (id) => {
+    try {
+      await deleteQuestion(id);
+      setQuestions(questions.filter((q) => q.id !== id));
+    } catch (error) {
+      console.error("Error deleting question:", error);
+    }
   };
 
   const handleEditClick = (question) => {
@@ -74,20 +99,16 @@ const QuestionList = () => {
     openModal();
   };
 
-  const editQuestion = (updatedQuestion) => {
-    updatedQuestion.updatedAt = new Date().toISOString().split("T")[0];
-    setQuestions(
-      questions.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
-    );
-    closeModal();
-  };
-
-  const deleteQuestion = (id) => {
-    setQuestions(questions.filter((q) => q.id !== id));
+  const resolveAnswer = (question) => {
+    if (question?.questionType?.name === "Single Choice") {
+      const answerKey = question?.answer;
+      return question[`option${answerKey}`];
+    }
+    return question?.answer || "N/A";
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <button
         onClick={() => {
           setEditingQuestion(null);
@@ -97,34 +118,31 @@ const QuestionList = () => {
       >
         Add New Question
       </button>
-      <h2 className="text-2xl font-bold mb-4">Questions</h2>
-
-      <table className="min-w-full bg-white border">
+      <h2 className="text-xl font-bold mb-4">Questions</h2>
+      <table className="min-w-full bg-white border rounded-lg">
         <thead>
-          <tr className="bg-gray-100 text-gray-700">
-            <th className="px-6 py-3 text-left">Question</th>
-            <th className="px-6 py-3 text-left">Type</th>
-            <th className="px-6 py-3 text-left">Mock Test ID</th>
-            <th className="px-6 py-3 text-left">Question Type ID</th>
-            <th className="px-6 py-3 text-left">Created By</th>
-            <th className="px-6 py-3 text-left">Status</th>
-            <th className="px-6 py-3 text-left">Created At</th>
-            <th className="px-6 py-3 text-left">Updated At</th>
-            <th className="px-6 py-3 text-center">Actions</th>
+          <tr className="text-left border-b">
+            <th className="p-4">SN</th>
+            <th className="p-4">Question</th>
+            <th className="p-4">Answer</th>
+            <th className="p-4">Type</th>
+            <th className="p-4 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {questions.map((question) => (
-            <tr key={question.id} className="border-t">
-              <td className="px-6 py-4">{question.text}</td>
-              <td className="px-6 py-4">{question.type}</td>
-              <td className="px-6 py-4">{question.mockTestId}</td>
-              <td className="px-6 py-4">{question.questionTypeId}</td>
-              <td className="px-6 py-4">{question.createdBy}</td>
-              <td className="px-6 py-4">{question.status}</td>
-              <td className="px-6 py-4">{question.createdAt}</td>
-              <td className="px-6 py-4">{question.updatedAt}</td>
-              <td className="px-6 py-4 text-center">
+          {questions.map((question, index) => (
+            <tr key={question.id} className="border-b">
+              <td className="p-4">{index + 1}</td>
+              <td className="p-4">{question?.description}</td>
+              <td className="p-4">{resolveAnswer(question)}</td>
+              <td className="p-4">{question?.questionType?.name}</td>
+              <td className="p-4 text-center">
+                <button
+                  onClick={() => openDetail(question)}
+                  className="text-blue-500 mr-4"
+                >
+                  <FaInfoCircle />
+                </button>
                 <button
                   onClick={() => handleEditClick(question)}
                   className="text-yellow-500 mr-4"
@@ -132,23 +150,16 @@ const QuestionList = () => {
                   <FaEdit />
                 </button>
                 <button
-                  onClick={() => deleteQuestion(question.id)}
+                  onClick={() => handleDeleteQuestion(question.id)}
                   className="text-red-500"
                 >
                   <FaTrash />
-                </button>
-                <button
-                  onClick={() => handleViewQuestion(question)}
-                  className="text-blue-500 ml-4"
-                >
-                  <FaInfoCircle />
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative">
@@ -161,28 +172,23 @@ const QuestionList = () => {
             {editingQuestion ? (
               <EditQuestionForm
                 question={editingQuestion}
-                onSave={editQuestion}
+                onSave={handleEditQuestion}
                 onCancel={closeModal}
+                questionTypes={questionTypes}
+                mockTests={mockTests}
               />
             ) : (
-              <AddQuestionForm onAdd={addQuestion} onCancel={closeModal} />
+              <AddQuestionForm
+                onAdd={handleAddQuestion}
+                onCancel={closeModal}
+                questionTypes={questionTypes}
+              />
             )}
           </div>
         </div>
       )}
-
       {isDetailOpen && selectedQuestion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-            >
-              ✕
-            </button>
-            <QuestionDetail question={selectedQuestion} onClose={closeDetail} />
-          </div>
-        </div>
+        <QuestionDetail question={selectedQuestion} onClose={closeDetail} />
       )}
     </div>
   );

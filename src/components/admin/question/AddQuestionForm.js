@@ -1,28 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { createQuestion, getQuestionTypes } from "@services/admin/questions"; // Import API service
+import { getMocktests } from "@services/admin/mockTest";
 
 const AddQuestionForm = ({ onAdd, onCancel }) => {
   const [text, setText] = useState("");
   const [type, setType] = useState("Single Answer");
   const [answers, setAnswers] = useState(["", "", "", ""]);
-  const [singleAnswer, setSingleAnswer] = useState(""); // For single answer type
-  const [category, setCategory] = useState("");
-  const [level, setLevel] = useState("");
+  const [singleAnswer, setSingleAnswer] = useState("");
+  const [questionTypes, setQuestionTypes] = useState([]);
   const [showAllOption, setShowAllOption] = useState(false);
-  const [selectedCourseCategory, setSelectedCourseCategory] = useState("");
+  const [mockTests, setMockTests] = useState([]);
   const [selectedMockTest, setSelectedMockTest] = useState("");
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const questionMockTests = await getMocktests();
+        const questionTypes = await getQuestionTypes();
+        setMockTests(questionMockTests || []);
+        setQuestionTypes(questionTypes || []);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
 
-  // Dummy data for course categories and mock tests
-  const courseCategories = [
-    { id: "1", name: "Math" },
-    { id: "2", name: "Science" },
-    { id: "3", name: "History" }
-  ];
+    fetchQuestions();
+  }, []);
 
-  const mockTests = [
-    { id: "1", name: "Mock Test 1" },
-    { id: "2", name: "Mock Test 2" },
-    { id: "3", name: "Mock Test 3" }
-  ];
+  console.log("mockTests", mockTests);
 
   const handleAddAnswer = () => {
     if (answers.length < 4) {
@@ -37,25 +41,47 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
     setAnswers(updatedAnswers);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const questionData = {
-      text,
-      type,
-      answer: type === "Single Answer" ? [singleAnswer] : [...answers, ...(showAllOption ? ["All of the Above"] : [])],
-      category: selectedCourseCategory,
-      mockTest: selectedMockTest,
-      level
-    };
-    onAdd(questionData);
+
+    try {
+      const questionData = {
+        description: text,
+        question_type_id: type === "Single Answer" ? 1 : 2,
+        answer:
+          type === "Single Answer"
+            ? singleAnswer
+            : JSON.stringify([
+                ...answers,
+                ...(showAllOption ? ["All of the Above"] : []),
+              ]),
+        mock_test_id: selectedMockTest,
+        status: true,
+      };
+
+      // Call API to add question
+      const response = await createQuestion(questionData);
+      if (response && response.data) {
+        onAdd(response.data); // Notify parent about the new question
+      }
+    } catch (error) {
+      console.error("Error adding question:", error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-lg shadow-md">
-      <h3 className="text-2xl font-semibold mb-6 text-blue-600">Add New Question</h3>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-gray-100 p-6 rounded-lg shadow-md"
+    >
+      <h3 className="text-2xl font-semibold mb-6 text-blue-600">
+        Add New Question
+      </h3>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Question Text</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Question Text
+        </label>
         <input
           type="text"
           value={text}
@@ -67,7 +93,9 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Question Type</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Question Type
+        </label>
         <select
           value={type}
           onChange={(e) => {
@@ -98,7 +126,9 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
         </div>
       ) : (
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Answer Options</label>
+          <label className="block text-gray-700 font-medium mb-2">
+            Answer Options
+          </label>
           {answers.map((answer, index) => (
             <input
               key={index}
@@ -127,31 +157,18 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
                 onChange={(e) => setShowAllOption(e.target.checked)}
                 className="form-checkbox text-blue-500"
               />
-              <span className="ml-2 text-gray-700">Include "All of the Above" as an option</span>
+              <span className="ml-2 text-gray-700">
+                Include "All of the Above" as an option
+              </span>
             </label>
           </div>
         </div>
       )}
 
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Course Category</label>
-        <select
-          value={selectedCourseCategory}
-          onChange={(e) => setSelectedCourseCategory(e.target.value)}
-          className="border border-gray-300 px-4 py-2 w-full rounded-lg"
-          required
-        >
-          <option value="">Select Course Category</option>
-          {courseCategories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Mock Test</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Mock Test
+        </label>
         <select
           value={selectedMockTest}
           onChange={(e) => setSelectedMockTest(e.target.value)}
@@ -165,18 +182,6 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
             </option>
           ))}
         </select>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Level</label>
-        <input
-          type="text"
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-          placeholder="Enter level (e.g., Beginner, Intermediate)"
-          className="border border-gray-300 px-4 py-2 w-full rounded-lg"
-          required
-        />
       </div>
 
       <div className="flex justify-end gap-4 mt-6">
@@ -199,4 +204,3 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
 };
 
 export default AddQuestionForm;
-

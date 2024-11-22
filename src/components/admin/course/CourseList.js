@@ -3,7 +3,11 @@ import { FaEdit, FaInfoCircle, FaTrash } from "react-icons/fa";
 import EditCourseForm from "./EditCourseForm";
 import AddCourseForm from "./AddCourseForm";
 import CourseDetail from "./CourseDetail";
-import { getCourses,getCourseCategories,deleteCourse } from "@services/admin/courses";
+import {
+  getCourses,
+  getCourseCategories,
+  deleteCourse,
+} from "@services/admin/courses";
 
 const CourseList = () => {
   const [courses, setCourses] = useState([]);
@@ -13,14 +17,13 @@ const CourseList = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [categories, setCategories] = useState([]); // State for categories fetched from API
 
-
   // Fetch initial data from API
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         const response = await getCourses();
         const categoriesResponse = await getCourseCategories();
-        setCategories(categoriesResponse?.data)
+        setCategories(categoriesResponse?.data);
         setCourses(response?.data || []);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -29,7 +32,6 @@ const CourseList = () => {
 
     fetchCourses();
   }, []);
-
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -48,24 +50,26 @@ const CourseList = () => {
   };
 
   const handleAddCourse = (course) => {
-    const category = categories.find(cat=>cat.id == course.category_id)
-    const newCourse = { ...course,category};
+    const category = categories.find((cat) => cat.id == course.category_id);
+    const newCourse = { ...course, category };
     setCourses([...courses, newCourse]);
     closeModal();
   };
 
   const handleEditCourse = (updatedCourse) => {
-    const category = categories.find(cat=>cat.id == updatedCourse?.category_id)
+    const category = categories.find(
+      (cat) => cat.id == updatedCourse?.category_id
+    );
     setCourses(
       courses.map((course) =>
-        course.id === updatedCourse.id ? {...updatedCourse,category} : course
+        course.id === updatedCourse.id ? { ...updatedCourse, category } : course
       )
     );
     closeModal();
   };
 
   const handleDeleteCourse = async (id) => {
-    await deleteCourse(id)
+    await deleteCourse(id);
     setCourses(courses.filter((course) => course.id !== id));
   };
 
@@ -152,7 +156,11 @@ const CourseList = () => {
         </div>
       )}
       {isDetailOpen && selectedCourse && (
-        <CourseDetail course={selectedCourse} onClose={closeDetail} categories={categories}/>
+        <CourseDetail
+          course={selectedCourse}
+          onClose={closeDetail}
+          categories={categories}
+        />
       )}
     </div>
   );
