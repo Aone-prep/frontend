@@ -32,8 +32,8 @@ const EditUserForm = ({ user, onSave, onCancel }) => {
     };
 
     try {
-      const response = await updateUser(user.id, updatedUser);
-      onSave(response); // Pass the updated user data back
+      await updateUser(user.id, updatedUser);
+      onSave(updatedUser,user.id); 
     } catch (error) {
       console.error("Error updating user:", error);
     } finally {

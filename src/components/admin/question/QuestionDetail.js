@@ -51,15 +51,15 @@ const QuestionDetail = ({ question = {}, onClose }) => {
 
           {/* Answer Section */}
           <div className="mt-6">
-            <div className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
+            {/* <div className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
               <List className="w-5 h-5 text-blue-600" />
               <h3>Answer(s)</h3>
-            </div>
-            <ul className="list-disc pl-6 text-gray-700 leading-relaxed">
-              {answer.map((ans, index) => (
+            </div> */}
+            {/* <ul className="list-disc pl-6 text-gray-700 leading-relaxed">
+              {answer?.map((ans, index) => (
                 <li key={index}>{ans}</li>
               ))}
-            </ul>
+            </ul> */}
           </div>
         </div>
 

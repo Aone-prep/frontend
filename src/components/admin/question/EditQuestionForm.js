@@ -44,7 +44,6 @@ const EditQuestionForm = ({
       question_type_id: formData.type === "Single Choice" ? 2 : 1,
       status: true,
     };
-
     onSave(updatedQuestion);
   };
 

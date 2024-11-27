@@ -33,7 +33,7 @@ export const deleteQuestion = async (id) => {
 // Get question by ID
 export const getQuestionById = async (id) => {
   try {
-    const response = await api.get(`/questions/${id}`);
+    const response = await api.get(`admin/questions/${id}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

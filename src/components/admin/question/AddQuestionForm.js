@@ -26,7 +26,6 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
     fetchQuestions();
   }, []);
 
-  console.log("mockTests", mockTests);
 
   const handleAddAnswer = () => {
     if (answers.length < 4) {
@@ -61,8 +60,8 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
 
       // Call API to add question
       const response = await createQuestion(questionData);
-      if (response && response.data) {
-        onAdd(response.data); // Notify parent about the new question
+      if (response && response) {
+        onAdd(response); // Notify parent about the new question
       }
     } catch (error) {
       console.error("Error adding question:", error);

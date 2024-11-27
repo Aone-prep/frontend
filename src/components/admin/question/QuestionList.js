@@ -61,9 +61,8 @@ const QuestionList = () => {
         (type) => type.id === newQuestion.questionTypeId
       );
       const newQuestionWithType = { ...newQuestion, questionType };
-
-      const response = await createQuestion(newQuestionWithType);
-      setQuestions([...questions, response.data]);
+      console.log(newQuestionWithType)
+      setQuestions([...questions, newQuestionWithType]);
       closeModal();
     } catch (error) {
       console.error("Error adding question:", error);
@@ -76,9 +75,9 @@ const QuestionList = () => {
         updatedQuestion.id,
         updatedQuestion
       );
-      setQuestions(
-        questions.map((q) => (q.id === updatedQuestion.id ? response.data : q))
-      );
+      // setQuestions(
+      //   questions.map((q) => (q.id === updatedQuestion.id ? response.data : q))
+      // );
       closeModal();
     } catch (error) {
       console.error("Error updating question:", error);

@@ -1,22 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserList from "./UserList";
-import AddUserForm from "./AddUserForm";
-import EditUserForm from "./EditUserForm";
+// import AddUserForm from "./AddUserForm";
+// import EditUserForm from "./EditUserForm";
 import Sidebar from "./Sidebar";
 import CourseList from "./course/CourseList";
 import QuestionList from "./question/QuestionList";
 import CategoryList from "./coursecategory/CategoryList";
-import QuestionCategoryList from "./question-category/QuestionCategoryList";
+import QuestionTypeList from "./question-category/QuestionTypeList";
 import AddMockTestForm from "./mocktest/AddMockTestForm"; // Import AddMockTestForm
 import MockTestList from "./mocktest/MockTestList";
 import ResultList from "@components/results/ResultList";
 import CourseContentList from "./coursecontent/CourseContentList";
+import { getAllUsers } from "@services/admin/users";
 
 const AdminPanel = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: "John Doe", email: "john@example.com" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com" },
-  ]);
+  const [users, setUsers] = useState([]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getAllUsers();
+        console.log(response);
+        setUsers(response || []);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+  
+    fetchUsers();
+  }, []);
 
   const [mockTests, setMockTests] = useState([]); // State to manage mock tests
   const [editingUser, setEditingUser] = useState(null);
@@ -59,13 +70,14 @@ const AdminPanel = () => {
               <div className="bg-green-500 text-white p-6 rounded shadow-md">
                 <h3 className="text-lg font-semibold">Active Users</h3>
                 <p className="text-3xl font-bold">
-                  {users.filter((user) => user.active).length}
+                  {users.filter((user) => user.status == 1).length}
                 </p>
               </div>
               <div className="bg-red-500 text-white p-6 rounded shadow-md">
-                <h3 className="text-lg font-semibold">Pending Requests</h3>
-                <p className="text-3xl font-bold">5</p>{" "}
-                {/* Placeholder count */}
+                <h3 className="text-lg font-semibold">Disabled Users</h3>
+                <p className="text-3xl font-bold">
+                  {users.filter((user) => user.status == 0).length}
+                </p>
               </div>
             </div>
           </div>
@@ -73,15 +85,6 @@ const AdminPanel = () => {
       case "users":
         return (
           <>
-            {/* {editingUser ? (
-              <EditUserForm
-                user={editingUser}
-                onSave={editUser}
-                onCancel={() => setEditingUser(null)}
-              />
-            ) : (
-              <AddUserForm onAdd={addUser} />
-            )} */}
             <UserList
               users={users}
               onEdit={(user) => setEditingUser(user)}
@@ -103,13 +106,13 @@ const AdminPanel = () => {
       case "questions":
         return <QuestionList />;
       case "question-categories":
-        return <QuestionCategoryList />;
+        return <QuestionTypeList/>;
       case "mock-test":
         return <MockTestList />;
       case "results":
         return <ResultList />;
-        case "coursecontent":
-          return <CourseContentList />;
+      case "coursecontent":
+        return <CourseContentList />;
       case "settings":
         return <h2 className="text-2xl font-bold">Settings Page</h2>;
       default:

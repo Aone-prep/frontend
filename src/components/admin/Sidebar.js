@@ -98,7 +98,7 @@ const Sidebar = ({ onSelect }) => {
                 className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
                 onClick={() => onSelect("question-categories")}
               >
-                Question Categories
+                Question Types
               </li>
               
             </ul>
@@ -116,13 +116,6 @@ const Sidebar = ({ onSelect }) => {
           >
             <FaCheckCircle className="mr-3" />
             Result
-          </li>
-          <li
-            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
-            onClick={() => onSelect("settings")}
-          >
-            <FaCog className="mr-3" />
-            Settings
           </li>
         </ul>
       </nav>

@@ -2,9 +2,8 @@
 
 import React, { useState } from "react";
 
-const AddQuestionCategoryForm = ({ onAdd, onCancel }) => {
+const AddQuestionTypeForm = ({ onAdd, onCancel }) => {
   const [name, setName] = useState("");
-  const [status, setStatus] = useState("active");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,9 +11,8 @@ const AddQuestionCategoryForm = ({ onAdd, onCancel }) => {
       alert("Please enter a name.");
       return;
     }
-    onAdd({ name, status });
+    onAdd({ name });
     setName("");
-    setStatus("active");
   };
 
   return (
@@ -29,18 +27,6 @@ const AddQuestionCategoryForm = ({ onAdd, onCancel }) => {
           onChange={(e) => setName(e.target.value)}
           required
         />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Status</label>
-        <select
-          className="w-full p-2 border rounded"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          required
-        >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
       </div>
       <div className="flex justify-end">
         <button
@@ -61,4 +47,4 @@ const AddQuestionCategoryForm = ({ onAdd, onCancel }) => {
   );
 };
 
-export default AddQuestionCategoryForm;
+export default AddQuestionTypeForm;
