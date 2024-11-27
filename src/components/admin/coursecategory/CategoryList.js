@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash,FaInfoCircle } from "react-icons/fa";
 import AddCategoryForm from "./AddCategoryForm";
 import EditCategoryForm from "./EditCategoryForm";
-import { getCategories, createCategory, updateCategory, deleteCategory } from "@services/admin/coursecategory";
+import { getCategories, createCategory, deleteCategory } from "@services/admin/coursecategory";
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
@@ -49,12 +49,12 @@ const CategoryList = () => {
     }
   };
 
-  const handleEditCategory = async (updatedCategory) => {
+  const handleEditCategory = (updatedCategory) => {
+    console.log(updatedCategory)
     try {
-      const updated = await updateCategory(updatedCategory.id, updatedCategory);
       setCategories(
         categories.map((category) =>
-          category.id === updated.id ? updated : category
+          category.id === updatedCategory.id ? updatedCategory : category
         )
       );
       closeModal();

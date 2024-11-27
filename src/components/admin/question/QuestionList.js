@@ -75,9 +75,9 @@ const QuestionList = () => {
         updatedQuestion.id,
         updatedQuestion
       );
-      setQuestions(
-        questions.map((q) => (q.id === updatedQuestion.id ? response.data : q))
-      );
+      // setQuestions(
+      //   questions.map((q) => (q.id === updatedQuestion.id ? response.data : q))
+      // );
       closeModal();
     } catch (error) {
       console.error("Error updating question:", error);
