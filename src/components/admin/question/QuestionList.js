@@ -61,9 +61,8 @@ const QuestionList = () => {
         (type) => type.id === newQuestion.questionTypeId
       );
       const newQuestionWithType = { ...newQuestion, questionType };
-
-      const response = await createQuestion(newQuestionWithType);
-      setQuestions([...questions, response.data]);
+      console.log(newQuestionWithType)
+      setQuestions([...questions, newQuestionWithType]);
       closeModal();
     } catch (error) {
       console.error("Error adding question:", error);

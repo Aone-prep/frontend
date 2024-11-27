@@ -9,7 +9,7 @@ const UserList = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
+  console.log(editingUser)
   // Fetch users from API
   useEffect(() => {
     const fetchUsers = async () => {
@@ -36,9 +36,9 @@ const UserList = () => {
     closeModal();
   };
 
-  const handleEditUser = (updatedUser) => {
+  const handleEditUser = (updatedUser,id) => {
     setUsers(
-      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+      users.map((user) => (user.id === id ? {...updatedUser,id} : user))
     );
     closeModal();
   };

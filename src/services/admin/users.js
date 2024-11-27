@@ -13,7 +13,7 @@ export const createUser = async (userData) => {
 // Update an existing user
 export const updateUser = async (id, userData) => {
   try {
-    const response = await api.put(`/user/${id}`, userData);
+    const response = await api.put(`/admin/update/${id}`, userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -23,7 +23,7 @@ export const updateUser = async (id, userData) => {
 // Delete a user
 export const deleteUser = async (id) => {
   try {
-    const response = await api.delete(`/user/${id}`);
+    const response = await api.delete(`/admin/delete/${id}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

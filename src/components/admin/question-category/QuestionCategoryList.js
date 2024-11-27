@@ -7,8 +7,8 @@ import EditQuestionCategoryForm from "./EditQuestionCategoryForm";
 
 const QuestionCategoryList = () => {
   const [categories, setCategories] = useState([
-    { id: 1, name: "General Knowledge", status: "active" },
-    { id: 2, name: "Science", status: "inactive" },
+    { id: 1, name: "General Knowledge" },
+    { id: 2, name: "Science" },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,12 +53,11 @@ const QuestionCategoryList = () => {
       >
         Add New Category
       </button>
-      <h2 className="text-xl font-bold mb-4">Question Categories</h2>
+      <h2 className="text-xl font-bold mb-4">Question Types</h2>
       <table className="min-w-full bg-white border rounded-lg">
         <thead>
           <tr className="text-left border-b">
             <th className="p-4">Name</th>
-            <th className="p-4">Status</th>
             <th className="p-4 text-center">Actions</th>
           </tr>
         </thead>
@@ -66,7 +65,6 @@ const QuestionCategoryList = () => {
           {categories.map((category) => (
             <tr key={category.id} className="border-b">
               <td className="p-4">{category.name}</td>
-              <td className="p-4">{category.status}</td>
               <td className="p-4 text-center">
                 <button
                   onClick={() => handleEditClick(category)}
