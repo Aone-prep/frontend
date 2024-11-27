@@ -17,6 +17,7 @@ import {
   CourseContents,
   MockTest,
   Forums,
+  TestHistory,
 } from "@pages/user";
 import UserLayout from "@components/user/layout/UserLayout";
 import { useSelector } from "react-redux";
@@ -28,13 +29,13 @@ import AdminRoute from "@routes/AdminRoute";
 function App() {
   const userAuth = useSelector((state) => ({
     isAuthenticated: state.user.isAuthenticated,
-    userType: state.user.userType,
+    role: state.user.role,
   }));
 
   // Helper function to determine the redirect path based on auth status
   const getHomePath = () => {
     if (!userAuth.isAuthenticated) return "/login";
-    return userAuth.userType === "admin" ? "/admin/dashboard" : "/home";
+    return userAuth.role === "admin" ? "/admin/dashboard" : "/home";
   };
 
   return (
@@ -63,8 +64,7 @@ function App() {
                 <Route
                   path="login"
                   element={
-                    userAuth.isAuthenticated &&
-                    userAuth.userType === "admin" ? (
+                    userAuth.isAuthenticated && userAuth.role === "admin" ? (
                       <Navigate to="/admin/dashboard" replace />
                     ) : (
                       <AdminLoginPage />
@@ -87,7 +87,7 @@ function App() {
                     element={<CourseDetails />}
                   />
                   <Route path="/mock-test" element={<MockTest />} />
-                  <Route path="/forums" element={<Forums />} />
+                  <Route path="/test-history" element={<TestHistory />} />
                 </Route>
               </Route>
 

@@ -30,7 +30,7 @@ const UserLayout = () => {
       text: "Test History",
       path: "/test-history",
     },
-    { icon: <MessageSquare size={24} />, text: "Forums", path: "/forums" },
+    // { icon: <MessageSquare size={24} />, text: "Forums", path: "/forums" },
   ];
 
   return (

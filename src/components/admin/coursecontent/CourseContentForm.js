@@ -1,18 +1,18 @@
 // src/components/CourseContentForm.js
-import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import React Quill styles
-import { createCourseContent, updateCourseContent, fetchCourses } from './api';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import React Quill styles
+import { createCourseContent, updateCourseContent, fetchCourses } from "./api";
+import { useHistory } from "react-router-dom";
 
 const CourseContentForm = ({ content, onClose }) => {
   const [courseContent, setCourseContent] = useState({
-    title: '',
-    body: '',
-    type: 'text',
-    course: '',
-    imageUrl: '',
-    videoUrl: '',
+    title: "",
+    body: "",
+    type: "text",
+    course: "",
+    imageUrl: "",
+    videoUrl: "",
     createdAt: null,
     updatedAt: null,
   });
@@ -54,19 +54,23 @@ const CourseContentForm = ({ content, onClose }) => {
         await createCourseContent(courseContent);
       }
       onClose();
-      history.push('/courses'); // Redirect to the courses list page
+      history.push("/courses"); // Redirect to the courses list page
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
     }
   };
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl font-semibold mb-4">{content ? 'Edit' : 'Create'} Course Content</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        {content ? "Edit" : "Create"} Course Content
+      </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Title
+          </label>
           <input
             type="text"
             name="title"
@@ -78,7 +82,9 @@ const CourseContentForm = ({ content, onClose }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Course</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Course
+          </label>
           <select
             name="course"
             value={courseContent.course}
@@ -96,7 +102,9 @@ const CourseContentForm = ({ content, onClose }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Content Type</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Content Type
+          </label>
           <select
             name="type"
             value={courseContent.type}
@@ -109,29 +117,45 @@ const CourseContentForm = ({ content, onClose }) => {
           </select>
         </div>
 
-        {courseContent.type === 'text' && (
+        {courseContent.type === "text" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Body (Text)</label>
-            <ReactQuill value={courseContent.body} onChange={handleEditorChange} className="mt-1" />
+            <label className="block text-sm font-medium text-gray-700">
+              Body (Text)
+            </label>
+            <ReactQuill
+              value={courseContent.body}
+              onChange={handleEditorChange}
+              className="mt-1"
+            />
           </div>
         )}
 
-        {courseContent.type === 'picture' && (
+        {courseContent.type === "picture" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Upload Image
+            </label>
             <input
               type="file"
               accept="image/*"
               onChange={handleFileChange}
               className="mt-1"
             />
-            {courseContent.imageUrl && <img src={courseContent.imageUrl} alt="Uploaded Preview" className="mt-2 max-w-xs" />}
+            {courseContent.imageUrl && (
+              <img
+                src={courseContent.imageUrl}
+                alt="Uploaded Preview"
+                className="mt-2 max-w-xs"
+              />
+            )}
           </div>
         )}
 
-        {courseContent.type === 'video' && (
+        {courseContent.type === "video" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Video URL</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Video URL
+            </label>
             <input
               type="url"
               name="videoUrl"
@@ -144,8 +168,11 @@ const CourseContentForm = ({ content, onClose }) => {
         )}
 
         <div>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            {content ? 'Update' : 'Save'} Content
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            {content ? "Update" : "Save"} Content
           </button>
         </div>
       </form>

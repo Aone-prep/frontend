@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 
 const AdminRoute = () => {
   const isAdminAuthenticated = useSelector(
-    (state) => state.user.isAuthenticated && state.user.userType === "admin"
+    (state) => state.user.isAuthenticated && state.user.role === "admin"
   );
 
   return isAdminAuthenticated ? (

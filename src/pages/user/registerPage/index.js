@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
 import { showToast } from "@utils/helper";
 import bgImage from "@assets/images/bg.jpeg";
 import { register } from "@services/auth";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm = ({ toggleForm }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +13,7 @@ const RegisterForm = ({ toggleForm }) => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -116,7 +117,7 @@ const RegisterForm = ({ toggleForm }) => {
           <span className="text-blue-600">Already have an account? </span>
           <button
             className="text-green-500 hover:underline"
-            onClick={() => toggleForm("login")}
+            onClick={() => navigate("/login")}
           >
             Login here
           </button>

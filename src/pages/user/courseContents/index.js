@@ -13,23 +13,75 @@ const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const loggedInUser = useSelector((state) => state.user.loggedUser);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const courses = useSelector((state) => state.course.courses);
 
-  const filteredCourses = courses?.filter(
-    (course) =>
-      (selectedCategory === "All" ||
-        course.category.category_name === selectedCategory) &&
-      (course.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Helper function to get user progress for a course
+  const getUserCourseProgress = (courseId) => {
+    if (!loggedInUser?.userCourses) return null;
+    const userCourse = loggedInUser.userCourses.find(
+      (uc) => uc.course.id === courseId
+    );
+    return userCourse
+      ? {
+          progress: userCourse.progress,
+          status: userCourse.status,
+        }
+      : null;
+  };
+
+  // Sort courses based on user progress
+  const sortCourses = (coursesToSort) => {
+    return [...coursesToSort].sort((a, b) => {
+      const progressA = getUserCourseProgress(a.id);
+      const progressB = getUserCourseProgress(b.id);
+
+      // Put "in_progress" courses first
+      if (
+        progressA?.status === "in_progress" &&
+        progressB?.status !== "in_progress"
+      )
+        return -1;
+      if (
+        progressB?.status === "in_progress" &&
+        progressA?.status !== "in_progress"
+      )
+        return 1;
+
+      // Then sort by progress percentage
+      if (progressA && progressB) {
+        return progressB.progress - progressA.progress;
+      }
+
+      // Put courses with any progress before courses with no progress
+      if (progressA && !progressB) return -1;
+      if (progressB && !progressA) return 1;
+
+      // Default sort by course name
+      return a.course_name.localeCompare(b.course_name);
+    });
+  };
+
+  const filteredCourses = sortCourses(
+    courses?.filter(
+      (course) =>
+        (selectedCategory === "All" ||
+          course.category.category_name === selectedCategory) &&
+        (course.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    ) || []
   );
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const coursesResponse = await getCourses();
-        const categoriesResponse = await getCourseCategories();
+        const [coursesResponse, categoriesResponse] = await Promise.all([
+          getCourses(),
+          getCourseCategories(),
+        ]);
 
         dispatch(setCoursesData(coursesResponse?.data));
         dispatch(setCourseCategoriesData(categoriesResponse?.data));
@@ -49,7 +101,7 @@ const Courses = () => {
 
   // Get unique categories from courses
   const uniqueCategories = [
-    ...new Set(courses.map((course) => course.category.category_name)),
+    ...new Set(courses.map((course) => course.category?.category_name)),
   ];
 
   return (
@@ -121,62 +173,72 @@ const Courses = () => {
 
       {/* Course Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCourses.map((course) => (
-          <div
-            key={course.id}
-            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow"
-          >
-            <div className="p-6">
-              {/* Course Header */}
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold">{course.course_name}</h2>
-                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                  {course.level}
-                </span>
-              </div>
-
-              {/* Course Description */}
-              <p className="text-gray-600 mb-4">{course.description}</p>
-
-              {/* Course Metadata */}
-              <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{course.duration}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <School className="h-4 w-4" />
-                  <span>{course.category.category_name}</span>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              {course.progress > 0 && (
-                <div className="mb-4">
-                  <div className="h-2 bg-gray-200 rounded-full">
-                    <div
-                      className="h-2 bg-green-500 rounded-full transition-all duration-300"
-                      style={{ width: `${course.progress}%` }}
-                    />
+        {filteredCourses.map((course) => {
+          const userProgress = getUserCourseProgress(course.id);
+          return (
+            <div
+              key={course.id}
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow"
+            >
+              <div className="p-6">
+                {/* Course Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl font-bold">{course.course_name}</h2>
+                  <div className="flex flex-col gap-2 items-end">
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                      {course.level}
+                    </span>
+                    {userProgress?.status === "in_progress" && (
+                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                        In Progress
+                      </span>
+                    )}
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {course.progress}% complete
-                  </span>
                 </div>
-              )}
 
-              {/* Course Footer */}
-              <div className="flex justify-end items-center mt-4 pt-4 border-t">
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  onClick={() => handleOnCourseClick(course.id)}
-                >
-                  {course.progress > 0 ? "Continue" : "Start"}
-                </button>
+                {/* Course Description */}
+                <p className="text-gray-600 mb-4">{course.description}</p>
+
+                {/* Course Metadata */}
+                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    <span>{course.duration}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <School className="h-4 w-4" />
+                    <span>{course.category?.category_name}</span>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                {userProgress?.progress > 0 && (
+                  <div className="mb-4">
+                    <div className="h-2 bg-gray-200 rounded-full">
+                      <div
+                        className="h-2 bg-green-500 rounded-full transition-all duration-300"
+                        style={{ width: `${userProgress.progress}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {userProgress.progress}% complete
+                    </span>
+                  </div>
+                )}
+
+                {/* Course Footer */}
+                <div className="flex justify-end items-center mt-4 pt-4 border-t">
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    onClick={() => handleOnCourseClick(course.id)}
+                  >
+                    {userProgress?.progress > 0 ? "Continue" : "Start"}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
