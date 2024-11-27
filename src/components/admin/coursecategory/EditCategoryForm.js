@@ -1,25 +1,22 @@
-// EditCategoryForm.js
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { updateCategory } from "@services/admin/coursecategory";
 
 const EditCategoryForm = ({ category, onSave, onCancel }) => {
-  const [name, setName] = useState(category.name);
-  const [description, setDescription] = useState(category.description);
+  const [name, setName] = useState(category.category_name); // Initialize state with category_name
 
-  useEffect(() => {
-    if (category) {
-      setName(category.name);
-      setDescription(category.description);
-    }
-  }, [category]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !description) {
+    if (!name) {
       alert("Please fill in all fields.");
       return;
     }
-    onSave({ ...category, name, description });
+    const updatedCategory = { category_name: name };
+    try {
+      const response = await updateCategory(category.id, updatedCategory);
+      onSave(response?.category); // Pass the updated category back to the parent
+    } catch (error) {
+      console.error("Failed to update category:", error);
+    }
   };
 
   return (
@@ -30,20 +27,12 @@ const EditCategoryForm = ({ category, onSave, onCancel }) => {
         <input
           type="text"
           className="w-full p-2 border rounded"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={name} // Bind to state
+          onChange={(e) => setName(e.target.value)} // Update state on change
           required
         />
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Description</label>
-        <textarea
-          className="w-full p-2 border rounded"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </div>
+
       <div className="flex justify-end">
         <button
           type="button"
