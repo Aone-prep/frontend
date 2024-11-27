@@ -98,7 +98,7 @@ const Sidebar = ({ onSelect }) => {
                 className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
                 onClick={() => onSelect("question-categories")}
               >
-                Question Categories
+                Question Types
               </li>
               
             </ul>
