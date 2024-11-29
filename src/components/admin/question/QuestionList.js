@@ -65,10 +65,13 @@ const QuestionList = () => {
 
   const handleEditQuestion = async (updatedQuestion) => {
     try {
-      const response = await updateQuestion(updatedQuestion.id, updatedQuestion);
+      const response = await updateQuestion(
+        updatedQuestion.id,
+        updatedQuestion
+      );
       setQuestions(
-        questions.map((q) =>
-          q.id === updatedQuestion.id ? response.data : q
+        currentQuestions.map((q) =>
+          q.id === updatedQuestion.id ? response : q
         )
       );
       closeModal();
@@ -94,7 +97,10 @@ const QuestionList = () => {
   // Pagination Logic
   const indexOfLastQuestion = currentPage * questionsPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-  const currentQuestions = questions.slice(indexOfFirstQuestion, indexOfLastQuestion);
+  const currentQuestions = questions.slice(
+    indexOfFirstQuestion,
+    indexOfLastQuestion
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -109,7 +115,7 @@ const QuestionList = () => {
 
   // Fetch the Mock Test name by matching the mock_test_id
   const resolveMockTestName = (mockTestId) => {
-    const mockTest = mockTests.find((test) => test.id === mockTestId);
+    const mockTest = mockTests?.find((test) => test.id === mockTestId);
     return mockTest ? mockTest.name : "N/A";
   };
 
@@ -141,7 +147,9 @@ const QuestionList = () => {
               <td className="p-4">{index + 1 + indexOfFirstQuestion}</td>
               <td className="p-4">{question?.description}</td>
               <td className="p-4">{resolveAnswer(question)}</td>
-              <td className="p-4">{resolveMockTestName(question.mock_test_id)}</td>
+              <td className="p-4">
+                {resolveMockTestName(question?.mock_test_id)}
+              </td>
               <td className="p-4 text-center">
                 <button
                   onClick={() => openDetail(question)}
@@ -156,7 +164,7 @@ const QuestionList = () => {
                   <FaEdit />
                 </button>
                 <button
-                  onClick={() => handleDeleteQuestion(question.id)}
+                  onClick={() => handleDeleteQuestion(question?.id)}
                   className="text-red-500"
                 >
                   <FaTrash />
@@ -199,6 +207,7 @@ const QuestionList = () => {
                 question={editingQuestion}
                 onSave={handleEditQuestion}
                 onCancel={closeModal}
+                mockTests={mockTests}
               />
             ) : (
               <AddQuestionForm

@@ -7,7 +7,7 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
   const [duration, setDuration] = useState("");
   const [maxScore, setMaxScore] = useState("");
   const [courseName, setCourseName] = useState("Course 1");
-  const [status, setStatus] = useState("Active");
+  // const [status, setStatus] = useState("Active");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,20 +20,27 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
 
     try {
       // Create a new mock test using the API
-      const mockTestData = { name, description, duration, maxScore, courseName, status:status==="Active"?1:0};
+      const mockTestData = {
+        name,
+        description,
+        duration,
+        maxScore,
+        courseName,
+        // status: status === "Active" ? 1 : 0,
+      };
       const newMockTest = await createMocktest(mockTestData);
 
       // Pass the new mock test data to the parent component (onAdd callback)
       onAdd(newMockTest);
-      
+
       // Clear form and close modal
       setName("");
       setDescription("");
       setDuration("");
       setMaxScore("");
       setCourseName("Course 1");
-      setStatus("Active");
-      onCancel();  // Close the modal after successful submission
+      // setStatus("Active");
+      onCancel(); // Close the modal after successful submission
     } catch (err) {
       setError("An error occurred while creating the mock test.");
     } finally {
@@ -43,7 +50,9 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-6">Add Mock Test</h3>
+      <h3 className="text-2xl font-semibold text-gray-800 mb-6">
+        Add Mock Test
+      </h3>
 
       {/* Error Message */}
       {error && (
@@ -65,7 +74,9 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div className="mb-5">
-        <label className="block text-gray-600 font-medium mb-2">Description</label>
+        <label className="block text-gray-600 font-medium mb-2">
+          Description
+        </label>
         <input
           type="text"
           value={description}
@@ -77,7 +88,9 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div className="mb-5">
-        <label className="block text-gray-600 font-medium mb-2">Duration (mins)</label>
+        <label className="block text-gray-600 font-medium mb-2">
+          Duration (mins)
+        </label>
         <input
           type="number"
           value={duration}
@@ -89,7 +102,9 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div className="mb-5">
-        <label className="block text-gray-600 font-medium mb-2">Max Score</label>
+        <label className="block text-gray-600 font-medium mb-2">
+          Max Score
+        </label>
         <input
           type="number"
           value={maxScore}
@@ -101,7 +116,9 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div className="mb-5">
-        <label className="block text-gray-600 font-medium mb-2">Course Name</label>
+        <label className="block text-gray-600 font-medium mb-2">
+          Course Name
+        </label>
         <select
           value={courseName}
           onChange={(e) => setCourseName(e.target.value)}
@@ -114,7 +131,7 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
         </select>
       </div>
 
-      <div className="mb-5">
+      {/* <div className="mb-5">
         <label className="block text-gray-600 font-medium mb-2">Status</label>
         <select
           value={status}
@@ -125,7 +142,7 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
           <option>Active</option>
           <option>Inactive</option>
         </select>
-      </div>
+      </div> */}
 
       <div className="flex justify-end">
         <button

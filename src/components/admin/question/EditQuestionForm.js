@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const EditQuestionForm = ({
   question, // The existing question data to edit
-  onSave,   // Function to handle saving the updated question
+  onSave, // Function to handle saving the updated question
   onCancel, // Function to handle cancel action
   mockTests, // List of mock tests to choose from
 }) => {
@@ -73,11 +73,15 @@ const EditQuestionForm = ({
       onSubmit={handleSubmit}
       className="bg-gray-100 p-6 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
     >
-      <h3 className="text-2xl font-semibold mb-6 text-blue-600">Edit Question</h3>
+      <h3 className="text-2xl font-semibold mb-6 text-blue-600">
+        Edit Question
+      </h3>
 
       {/* Question Text */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Question Text</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Question Text
+        </label>
         <input
           type="text"
           name="description"
@@ -90,10 +94,14 @@ const EditQuestionForm = ({
 
       {/* Answer Options */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Answer Options</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Answer Options
+        </label>
         {["A", "B", "C", "D"].map((option) => (
           <div key={option} className="mb-2">
-            <label className="block text-sm text-gray-600 mb-1">Option {option}</label>
+            <label className="block text-sm text-gray-600 mb-1">
+              Option {option}
+            </label>
             <input
               type="text"
               name={`option${option}`}
@@ -108,7 +116,9 @@ const EditQuestionForm = ({
 
       {/* Correct Answer */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Correct Answer</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Correct Answer
+        </label>
         <div className="space-y-2">
           {["A", "B", "C", "D"].map((option) => (
             <label key={option} className="flex items-center">
@@ -128,7 +138,9 @@ const EditQuestionForm = ({
 
       {/* Mock Test Selection */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Mock Test</label>
+        <label className="block text-gray-700 font-medium mb-2">
+          Mock Test
+        </label>
         <select
           name="mockTestId"
           value={formData.mockTestId}
@@ -137,7 +149,7 @@ const EditQuestionForm = ({
           required
         >
           <option value="">Select Mock Test</option>
-          {mockTests.map((test) => (
+          {mockTests?.map((test) => (
             <option key={test.id} value={test.id}>
               {test.name}
             </option>
