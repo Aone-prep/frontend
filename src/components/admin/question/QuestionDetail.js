@@ -1,15 +1,12 @@
-// QuestionDetail.js
-
 import React from "react";
-import { X, Info, Layers, Tag, List, CheckCircle } from "lucide-react";
+import { X, Info, List, CheckCircle, Clock } from "lucide-react"; // Import only required icons
 
 const QuestionDetail = ({ question = {}, onClose }) => {
   const {
-    text = "Question text",
-    type = "Type not specified",
-    category = "Category not specified",
-    level = "Level not specified",
-    answer = ["No answers available"],
+    description = "Question description not available", // Renamed to 'description' to match your data model
+    options = { optionA: "A", optionB: "B", optionC: "C", optionD: "D" }, // Options object
+    created_at = "2024-01-01T00:00:00Z", // Sample created time (ISO format)
+    answer = "No answer available", // Default answer
   } = question;
 
   const InfoItem = ({ icon: Icon, label, value }) => (
@@ -22,15 +19,19 @@ const QuestionDetail = ({ question = {}, onClose }) => {
     </div>
   );
 
+  // Format the created time to a more user-friendly format
+  const formatCreatedTime = (timeString) => {
+    const date = new Date(timeString);
+    return date.toLocaleString(); // Use toLocaleString to format the date nicely
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex justify-between items-start">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Question Details
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-900">Question Details</h2>
             <button
               onClick={onClose}
               className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -42,24 +43,31 @@ const QuestionDetail = ({ question = {}, onClose }) => {
 
         {/* Content */}
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <InfoItem icon={Info} label="Question Text" value={text} />
-            <InfoItem icon={Layers} label="Type" value={type} />
-            <InfoItem icon={Tag} label="Category" value={category} />
-            <InfoItem icon={CheckCircle} label="Level" value={level} />
+          {/* Question Description */}
+          <InfoItem icon={Info} label="Question" value={description} />
+
+          {/* Options Section */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
+              <List className="w-5 h-5 text-blue-600" />
+              <h3>Options</h3>
+            </div>
+            <ul className="space-y-2">
+              <li className="p-3 bg-gray-100 rounded-lg shadow-sm">{options.optionA}</li>
+              <li className="p-3 bg-gray-100 rounded-lg shadow-sm">{options.optionB}</li>
+              <li className="p-3 bg-gray-100 rounded-lg shadow-sm">{options.optionC}</li>
+              <li className="p-3 bg-gray-100 rounded-lg shadow-sm">{options.optionD}</li>
+            </ul>
           </div>
 
           {/* Answer Section */}
           <div className="mt-6">
-            {/* <div className="flex items-center gap-2 text-lg font-semibold text-gray-900 mb-3">
-              <List className="w-5 h-5 text-blue-600" />
-              <h3>Answer(s)</h3>
-            </div> */}
-            {/* <ul className="list-disc pl-6 text-gray-700 leading-relaxed">
-              {answer?.map((ans, index) => (
-                <li key={index}>{ans}</li>
-              ))}
-            </ul> */}
+            <InfoItem icon={CheckCircle} label="Answer" value={answer} />
+          </div>
+
+          {/* Created Time Section */}
+          <div className="mt-6">
+            <InfoItem icon={Clock} label="Created At" value={formatCreatedTime(created_at)} />
           </div>
         </div>
 

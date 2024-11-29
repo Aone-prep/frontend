@@ -17,7 +17,7 @@ const AddQuestionTypeForm = ({ onAdd, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-lg font-bold mb-4">Add New Question Category</h2>
+      <h2 className="text-lg font-bold mb-4">Add New Question Type</h2>
       <div className="mb-4">
         <label className="block text-gray-700">Name</label>
         <input
@@ -40,7 +40,7 @@ const AddQuestionTypeForm = ({ onAdd, onCancel }) => {
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded"
         >
-          Add Category
+          Add Type
         </button>
       </div>
     </form>

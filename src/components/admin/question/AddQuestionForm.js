@@ -1,67 +1,52 @@
 import React, { useEffect, useState } from "react";
-import { createQuestion, getQuestionTypes } from "@services/admin/questions"; // Import API service
+import { createQuestion } from "@services/admin/questions"; // Import API service
 import { getMocktests } from "@services/admin/mockTest";
 
 const AddQuestionForm = ({ onAdd, onCancel }) => {
-  const [text, setText] = useState("");
-  const [type, setType] = useState("Single Answer");
-  const [answers, setAnswers] = useState(["", "", "", ""]);
-  const [singleAnswer, setSingleAnswer] = useState("");
-  const [questionTypes, setQuestionTypes] = useState([]);
-  const [showAllOption, setShowAllOption] = useState(false);
-  const [mockTests, setMockTests] = useState([]);
-  const [selectedMockTest, setSelectedMockTest] = useState("");
+  const [text, setText] = useState("");  // Question text
+  const [optionA, setOptionA] = useState(""); // Option A
+  const [optionB, setOptionB] = useState(""); // Option B
+  const [optionC, setOptionC] = useState(""); // Option C
+  const [optionD, setOptionD] = useState(""); // Option D
+  const [correctAnswer, setCorrectAnswer] = useState(""); // Correct answer field
+  const [mockTests, setMockTests] = useState([]);  // Mock tests list
+  const [selectedMockTest, setSelectedMockTest] = useState("");  // Selected mock test
+
+  // Fetch mock tests from API
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const questionMockTests = await getMocktests();
-        const questionTypes = await getQuestionTypes();
         setMockTests(questionMockTests || []);
-        setQuestionTypes(questionTypes || []);
       } catch (error) {
-        console.error("Error fetching questions:", error);
+        console.error("Error fetching mock tests:", error);
       }
     };
 
     fetchQuestions();
   }, []);
 
-
-  const handleAddAnswer = () => {
-    if (answers.length < 4) {
-      setAnswers([...answers, ""]);
-    }
-  };
-
-  const handleAnswerChange = (index, value) => {
-    const updatedAnswers = answers.map((answer, i) =>
-      i === index ? value : answer
-    );
-    setAnswers(updatedAnswers);
-  };
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const questionData = {
-        description: text,
-        question_type_id: type === "Single Answer" ? 1 : 2,
-        answer:
-          type === "Single Answer"
-            ? singleAnswer
-            : JSON.stringify([
-                ...answers,
-                ...(showAllOption ? ["All of the Above"] : []),
-              ]),
-        mock_test_id: selectedMockTest,
-        status: true,
+        description: text,      // Question text
+        optionA,                 // Option A
+        optionB,                 // Option B
+        optionC,                 // Option C
+        optionD,                 // Option D
+        answer: correctAnswer,   // Correct answer (e.g., 'optionA')
+        mock_test_id: selectedMockTest,  // Selected mock test
+        question_type_id: 2,     // Assuming multiple-choice type
+        status: true,            // Active question status
       };
 
       // Call API to add question
       const response = await createQuestion(questionData);
-      if (response && response) {
-        onAdd(response); // Notify parent about the new question
+      if (response && response.data) {
+        onAdd(response.data);  // Notify parent about the new question
       }
     } catch (error) {
       console.error("Error adding question:", error);
@@ -69,18 +54,12 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-100 p-6 rounded-lg shadow-md"
-    >
-      <h3 className="text-2xl font-semibold mb-6 text-blue-600">
-        Add New Question
-      </h3>
+    <form onSubmit={handleSubmit} className="bg-gray-100 p-6 rounded-lg shadow-md">
+      <h3 className="text-2xl font-semibold mb-6 text-blue-600">Add New Question</h3>
 
+      {/* Question Text */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
-          Question Text
-        </label>
+        <label className="block text-gray-700 font-medium mb-2">Question Text</label>
         <input
           type="text"
           value={text}
@@ -91,83 +70,71 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
         />
       </div>
 
+      {/* Answer Options */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
-          Question Type
-        </label>
+        <label className="block text-gray-700 font-medium mb-2">Answer Options</label>
+        
+        {/* Option A */}
+        <input
+          type="text"
+          value={optionA}
+          onChange={(e) => setOptionA(e.target.value)}
+          placeholder="Option A"
+          className="border border-gray-300 px-4 py-2 w-full rounded-lg mb-2"
+          required
+        />
+        
+        {/* Option B */}
+        <input
+          type="text"
+          value={optionB}
+          onChange={(e) => setOptionB(e.target.value)}
+          placeholder="Option B"
+          className="border border-gray-300 px-4 py-2 w-full rounded-lg mb-2"
+          required
+        />
+        
+        {/* Option C */}
+        <input
+          type="text"
+          value={optionC}
+          onChange={(e) => setOptionC(e.target.value)}
+          placeholder="Option C"
+          className="border border-gray-300 px-4 py-2 w-full rounded-lg mb-2"
+          required
+        />
+        
+        {/* Option D */}
+        <input
+          type="text"
+          value={optionD}
+          onChange={(e) => setOptionD(e.target.value)}
+          placeholder="Option D"
+          className="border border-gray-300 px-4 py-2 w-full rounded-lg mb-2"
+          required
+        />
+      </div>
+
+      {/* Correct Answer Selection */}
+      <div className="mb-4">
+        <label className="block text-gray-700 font-medium mb-2">Correct Answer</label>
         <select
-          value={type}
-          onChange={(e) => {
-            setType(e.target.value);
-            if (e.target.value === "Single Answer") {
-              setShowAllOption(false);
-              setAnswers([""]); // Reset answers for single answer type
-            }
-          }}
+          value={correctAnswer}
+          onChange={(e) => setCorrectAnswer(e.target.value)}
           className="border border-gray-300 px-4 py-2 w-full rounded-lg"
+          required
         >
-          <option value="Single Answer">Single Answer</option>
-          <option value="Multiple Choice">Multiple Choice</option>
+          <option value="">Select Correct Answer</option>
+          <option value="A">Option A</option>
+          <option value="B">Option B</option>
+          <option value="C">Option C</option>
+          <option value="D">Option D</option>
         </select>
       </div>
 
-      {type === "Single Answer" ? (
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Answer</label>
-          <input
-            type="text"
-            value={singleAnswer}
-            onChange={(e) => setSingleAnswer(e.target.value)}
-            placeholder="Enter single answer here..."
-            className="border border-gray-300 px-4 py-2 w-full rounded-lg"
-            required
-          />
-        </div>
-      ) : (
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Answer Options
-          </label>
-          {answers.map((answer, index) => (
-            <input
-              key={index}
-              type="text"
-              value={answer}
-              onChange={(e) => handleAnswerChange(index, e.target.value)}
-              placeholder={`Option ${index + 1}`}
-              className="border border-gray-300 px-4 py-2 w-full rounded-lg mb-2"
-              required
-            />
-          ))}
-          {answers.length < 4 && (
-            <button
-              type="button"
-              onClick={handleAddAnswer}
-              className="text-blue-500 hover:text-blue-700"
-            >
-              + Add Another Option
-            </button>
-          )}
-          <div className="mt-4">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={showAllOption}
-                onChange={(e) => setShowAllOption(e.target.checked)}
-                className="form-checkbox text-blue-500"
-              />
-              <span className="ml-2 text-gray-700">
-                Include "All of the Above" as an option
-              </span>
-            </label>
-          </div>
-        </div>
-      )}
-
+      {/* Mock Test Selection */}
       <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
-          Mock Test
-        </label>
+        <label className="block text-gray-700 font-medium mb-2">Mock Test</label>
         <select
           value={selectedMockTest}
           onChange={(e) => setSelectedMockTest(e.target.value)}
@@ -183,6 +150,7 @@ const AddQuestionForm = ({ onAdd, onCancel }) => {
         </select>
       </div>
 
+      {/* Buttons to save or cancel */}
       <div className="flex justify-end gap-4 mt-6">
         <button
           type="button"
