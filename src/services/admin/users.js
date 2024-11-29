@@ -3,7 +3,7 @@ import api from "@services/api";
 // Create a new user
 export const createUser = async (userData) => {
   try {
-    const response = await api.post("/users", userData);
+    const response = await api.post("/user/register", userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

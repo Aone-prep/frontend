@@ -1,57 +1,39 @@
-// src/components/CourseContentList.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import React Quill styles
-
-// Dummy data for courses and course contents
-const dummyCourses = [
-  { id: 1, name: "Course 1" },
-  { id: 2, name: "Course 2" },
-  { id: 3, name: "Course 3" }
-];
-
-const dummyCourseContents = [
-  {
-    _id: 1,
-    title: "Intro to React",
-    body: "This is an introductory course to React JS. Learn the basics of React.",
-    type: "text",
-    course: 1,
-    createdAt: "2024-01-01",
-    updatedAt: "2024-01-02"
-  },
-  {
-    _id: 2,
-    title: "Advanced JavaScript",
-    body: "Dive deep into JavaScript, covering closures, promises, async/await, and more.",
-    type: "text",
-    course: 2,
-    createdAt: "2024-02-01",
-    updatedAt: "2024-02-05"
-  },
-  {
-    _id: 3,
-    title: "Python for Data Science",
-    body: "Learn Python in the context of Data Science. Work with libraries like Pandas, NumPy, and Matplotlib.",
-    type: "text",
-    course: 3,
-    createdAt: "2024-03-01",
-    updatedAt: "2024-03-05"
-  }
-];
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Only import Edit and Trash icons
+import { getCourseContents, createCourseContent, updateCourseContent, deleteCourseContent } from '@services/admin/coursecontent'; // API services
+import { getCourses } from '@services/admin/courses'; // API service for courses
 
 const CourseContentList = () => {
-  const [courseContents, setCourseContents] = useState(dummyCourseContents);
-  const [courses] = useState(dummyCourses); // Static list of courses
+  const [courseContents, setCourseContents] = useState([]);
+  const [courses, setCourses] = useState([]); // To hold the list of courses (we'll assume you have an API for this)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState(null);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const contentResponse = await getCourseContents();
+        setCourseContents(contentResponse);
+        const courseResponse = await getCourses();
+        setCourses(courseResponse.data);
+      } catch (error) {
+        console.error("Error fetching course contents or courses:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
 
   const handleModalOpen = (content = null) => {
     setCurrentContent(content || {
       title: '',
       body: '',
       type: 'text', // Set default type to 'text'
-      course: courses[0]?.id || '', // Set default course to the first course (if available)
+      courseId: courses[0]?.id || '', // Set default course to the first course (if available)
       createdAt: '',
       updatedAt: ''
     });
@@ -72,27 +54,34 @@ const CourseContentList = () => {
     setCurrentContent({ ...currentContent, body: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (currentContent._id) {
-      // Update existing content
-      const updatedContents = courseContents.map((content) =>
-        content._id === currentContent._id ? currentContent : content
-      );
-      setCourseContents(updatedContents);
-    } else {
-      // Add new content
-      const newContent = { ...currentContent, _id: courseContents.length + 1, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-      setCourseContents([...courseContents, newContent]);
+    try {
+      if (currentContent.id) {
+        // Update existing content
+        const updatedContent = await updateCourseContent(currentContent.id, currentContent);
+        setCourseContents(courseContents.map((content) =>
+          content.id === updatedContent.id ? updatedContent : content
+        ));
+      } else {
+        // Add new content
+        const newContent = await createCourseContent(currentContent);
+        setCourseContents([...courseContents, newContent]);
+      }
+      handleModalClose();
+    } catch (error) {
+      console.error("Error saving course content:", error);
     }
-    handleModalClose();
-  };
-console.log(courseContents)
-  const handleDelete = (id) => {
-    const updatedContents = courseContents.filter((content) => content._id !== id);
-    setCourseContents(updatedContents);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await deleteCourseContent(id);
+      setCourseContents(courseContents.filter((content) => content.id !== id));
+    } catch (error) {
+      console.error("Error deleting course content:", error);
+    }
+  };
   return (
     <div className="container mx-auto p-4">
       {/* Add button on the right */}
@@ -113,28 +102,30 @@ console.log(courseContents)
             <th className="border px-4 py-2">Course</th>
             <th className="border px-4 py-2">Created</th>
             <th className="border px-4 py-2">Updated</th>
-            <th className="border px-4 py-2">Actions</th>
+            <th className="border px-4 py-2 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           {courseContents.map((content) => (
-            <tr key={content._id}>
+            <tr key={content.id}>
               <td className="border px-4 py-2">{content.title}</td>
-              <td className="border px-4 py-2">{courses.find(course => parseInt(course.id) === parseInt(content.course))?.name}</td>
+              <td className="border px-4 py-2">{courses.find(course => parseInt(course.id) === parseInt(content.courseId))?.course_name}</td>
               <td className="border px-4 py-2">{content.createdAt}</td>
               <td className="border px-4 py-2">{content.updatedAt}</td>
-              <td className="border px-4 py-2">
+              <td className="border px-4 py-2 text-center">
+                {/* Edit Icon */}
                 <button
                   onClick={() => handleModalOpen(content)}
-                  className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                  className="text-yellow-500 mr-4"
                 >
-                  Edit
+                  <FaEdit />
                 </button>
+                {/* Delete Icon */}
                 <button
-                  onClick={() => handleDelete(content._id)}
-                  className="bg-red-600 text-white px-2 py-1 rounded ml-2 hover:bg-red-700"
+                  onClick={() => handleDelete(content.id)}
+                  className="text-red-500"
                 >
-                  Delete
+                  <FaTrash />
                 </button>
               </td>
             </tr>
@@ -146,7 +137,7 @@ console.log(courseContents)
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-md w-96">
-            <h2 className="text-xl font-semibold mb-4">{currentContent ? 'Edit' : 'Add'} Course Content</h2>
+            <h2 className="text-xl font-semibold mb-4">{currentContent?.title ? 'Edit' : 'Add'} Course Content</h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -173,7 +164,7 @@ console.log(courseContents)
                   <option value="">Select Course</option>
                   {courses.map((course) => (
                     <option key={course.id} value={course.id}>
-                      {course.name}
+                      {course.course_name}
                     </option>
                   ))}
                 </select>
@@ -222,8 +213,8 @@ console.log(courseContents)
                   <label className="block text-sm font-medium text-gray-700">Video URL</label>
                   <input
                     type="url"
-                    name="videoUrl"
-                    value={currentContent?.videoUrl || ''}
+                    name="mediaUrl"
+                    value={currentContent?.mediaUrl || ''}
                     onChange={handleChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                     placeholder="Paste video URL here"
@@ -234,14 +225,14 @@ console.log(courseContents)
               <div className="flex justify-between mt-[100px]">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                 >
-                  {currentContent ? 'Update' : 'Save'} Content
+                  {currentContent.id ? 'Update' : 'Add'} Content
                 </button>
                 <button
                   type="button"
                   onClick={handleModalClose}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
                 >
                   Cancel
                 </button>

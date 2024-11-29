@@ -66,15 +66,6 @@ const ResultList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <button
-        onClick={() => {
-          setEditingResult(null);
-          openModal();
-        }}
-        className="bg-blue-600 text-white px-4 py-2 rounded mb-4 float-right"
-      >
-        Add New Result
-      </button>
       <h2 className="text-2xl font-bold mb-4">Results</h2>
 
       <table className="min-w-full bg-white border">
@@ -104,22 +95,10 @@ const ResultList = () => {
               <td className="px-6 py-4">{result.updatedAt}</td>
               <td className="px-6 py-4 text-center">
                 <button
-                  onClick={() => setEditingResult(result)}
-                  className="text-yellow-500 mr-4"
-                >
-                  <FaEdit />
-                </button>
-                <button
                   onClick={() => deleteResult(result.id)}
                   className="text-red-500"
                 >
                   <FaTrash />
-                </button>
-                <button
-                  onClick={() => openDetail(result)}
-                  className="text-blue-500 ml-4"
-                >
-                  <FaInfoCircle />
                 </button>
               </td>
             </tr>
@@ -137,9 +116,13 @@ const ResultList = () => {
               ✕
             </button>
             {editingResult ? (
-              <EditResultForm result={editingResult} onSave={editResult} onCancel={closeModal} />
+              <EditResultForm
+                result={editingResult}
+                onSave={editResult}
+                onCancel={closeModal}
+              />
             ) : (
-              <AddResultForm onAdd={addResult} onCancel={closeModal} />
+              <></>
             )}
           </div>
         </div>

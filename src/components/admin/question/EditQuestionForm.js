@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from "react";
 
 const EditQuestionForm = ({
-  question,
-  onSave,
-  onCancel,
-  mockTests,
-  questionTypes,
+  question, // The existing question data to edit
+  onSave, // Function to handle saving the updated question
+  onCancel, // Function to handle cancel action
+  mockTests, // List of mock tests to choose from
 }) => {
-  // Initialize form state based on question type
-  const isSingleChoice = question.questionType.name === "Single Choice";
-
+  // Initialize form data based on the existing question
   const [formData, setFormData] = useState({
     description: question.description || "",
-    type: isSingleChoice ? "Single Choice" : "Multiple Choice",
     optionA: question.optionA || "",
     optionB: question.optionB || "",
     optionC: question.optionC || "",
     optionD: question.optionD || "",
-    answer: question.answer || (isSingleChoice ? "A" : []),
+    answer: question.answer || "", // Store as a string to hold a single answer (A, B, C, D)
     mockTestId: question.mock_test_id || "",
   });
 
+  // Update formData when question props change
+  useEffect(() => {
+    setFormData({
+      description: question.description || "",
+      optionA: question.optionA || "",
+      optionB: question.optionB || "",
+      optionC: question.optionC || "",
+      optionD: question.optionD || "",
+      answer: question.answer || "", // Ensure answer is a string
+      mockTestId: question.mock_test_id || "",
+    });
+  }, [question]);
+
+  // Handle input change for text fields and selects
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -29,9 +39,19 @@ const EditQuestionForm = ({
     }));
   };
 
+  // Handle change for correct answer (only one option can be selected)
+  const handleAnswerChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      answer: e.target.value, // Set the answer to the selected option (A, B, C, or D)
+    }));
+  };
+
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Create an updated question object
     const updatedQuestion = {
       ...question,
       description: formData.description,
@@ -39,18 +59,19 @@ const EditQuestionForm = ({
       optionB: formData.optionB,
       optionC: formData.optionC,
       optionD: formData.optionD,
-      answer: formData.answer,
+      answer: formData.answer, // Store answer as a string (A, B, C, D)
       mock_test_id: formData.mockTestId,
-      question_type_id: formData.type === "Single Choice" ? 2 : 1,
-      status: true,
+      status: true, // Keep question active
     };
+
+    // Pass updated question data to onSave
     onSave(updatedQuestion);
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-gray-100 p-6 rounded-lg shadow-md"
+      className="bg-gray-100 p-6 rounded-lg shadow-md max-h-[500px] overflow-y-auto"
     >
       <h3 className="text-2xl font-semibold mb-6 text-blue-600">
         Edit Question
@@ -71,23 +92,7 @@ const EditQuestionForm = ({
         />
       </div>
 
-      {/* Question Type */}
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">
-          Question Type
-        </label>
-        <select
-          name="type"
-          value={formData.type}
-          onChange={handleInputChange}
-          className="border border-gray-300 px-4 py-2 w-full rounded-lg"
-        >
-          <option value="Single Choice">Single Choice</option>
-          <option value="Multiple Choice">Multiple Choice</option>
-        </select>
-      </div>
-
-      {/* Options */}
+      {/* Answer Options */}
       <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-2">
           Answer Options
@@ -114,40 +119,21 @@ const EditQuestionForm = ({
         <label className="block text-gray-700 font-medium mb-2">
           Correct Answer
         </label>
-        {formData.type === "Single Choice" ? (
-          <select
-            name="answer"
-            value={formData.answer}
-            onChange={handleInputChange}
-            className="border border-gray-300 px-4 py-2 w-full rounded-lg"
-            required
-          >
-            <option value="">Select correct answer</option>
-            <option value="A">Option A</option>
-            <option value="B">Option B</option>
-            <option value="C">Option C</option>
-            <option value="D">Option D</option>
-          </select>
-        ) : (
-          <div className="space-y-2">
-            {["A", "B", "C", "D"].map((option) => (
-              <label key={option} className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.answer.includes(option)}
-                  onChange={(e) => {
-                    const newAnswer = e.target.checked
-                      ? [...formData.answer, option]
-                      : formData.answer.filter((a) => a !== option);
-                    setFormData((prev) => ({ ...prev, answer: newAnswer }));
-                  }}
-                  className="mr-2"
-                />
-                Option {option}
-              </label>
-            ))}
-          </div>
-        )}
+        <div className="space-y-2">
+          {["A", "B", "C", "D"].map((option) => (
+            <label key={option} className="flex items-center">
+              <input
+                type="radio" // Changed to radio to allow only one answer to be selected
+                name="answer"
+                value={option}
+                checked={formData.answer === option} // Only check the one that matches the answer
+                onChange={handleAnswerChange} // Handle the radio button change
+                className="mr-2"
+              />
+              Option {option}
+            </label>
+          ))}
+        </div>
       </div>
 
       {/* Mock Test Selection */}
@@ -163,7 +149,7 @@ const EditQuestionForm = ({
           required
         >
           <option value="">Select Mock Test</option>
-          {mockTests.map((test) => (
+          {mockTests?.map((test) => (
             <option key={test.id} value={test.id}>
               {test.name}
             </option>

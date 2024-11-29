@@ -8,9 +8,8 @@ import {
   createQuestion,
   updateQuestion,
   deleteQuestion,
-  getQuestionTypes,
 } from "@services/admin/questions"; // API services
-import { getMocktests } from "@services/admin/mockTest";
+import { getMocktests } from "@services/admin/mockTest"; // API service for mock tests
 
 const QuestionList = () => {
   const [questions, setQuestions] = useState([]);
@@ -18,18 +17,19 @@ const QuestionList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
-  const [questionTypes, setQuestionTypes] = useState([]);
   const [mockTests, setMockTests] = useState([]);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const questionsPerPage = 5; // Set how many questions to show per page
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const response = await getQuestions();
-        const questionTypesResponse = await getQuestionTypes();
+        const mockTestsResponse = await getMocktests();
         setQuestions(response || []);
-        const questionMockTests = await getMocktests();
-        setMockTests(questionMockTests || []);
-        setQuestionTypes(questionTypesResponse || []);
+        setMockTests(mockTestsResponse || []);
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
@@ -56,13 +56,7 @@ const QuestionList = () => {
 
   const handleAddQuestion = async (newQuestion) => {
     try {
-      // Add `questionType` to the new question
-      const questionType = questionTypes.find(
-        (type) => type.id === newQuestion.questionTypeId
-      );
-      const newQuestionWithType = { ...newQuestion, questionType };
-      console.log(newQuestionWithType)
-      setQuestions([...questions, newQuestionWithType]);
+      setQuestions([...questions, newQuestion]);
       closeModal();
     } catch (error) {
       console.error("Error adding question:", error);
@@ -75,9 +69,11 @@ const QuestionList = () => {
         updatedQuestion.id,
         updatedQuestion
       );
-      // setQuestions(
-      //   questions.map((q) => (q.id === updatedQuestion.id ? response.data : q))
-      // );
+      setQuestions(
+        currentQuestions.map((q) =>
+          q.id === updatedQuestion.id ? response : q
+        )
+      );
       closeModal();
     } catch (error) {
       console.error("Error updating question:", error);
@@ -98,12 +94,29 @@ const QuestionList = () => {
     openModal();
   };
 
+  // Pagination Logic
+  const indexOfLastQuestion = currentPage * questionsPerPage;
+  const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
+  const currentQuestions = questions.slice(
+    indexOfFirstQuestion,
+    indexOfLastQuestion
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Map the answer option to the correct option text
   const resolveAnswer = (question) => {
-    if (question?.questionType?.name === "Single Choice") {
-      const answerKey = question?.answer;
-      return question[`option${answerKey}`];
+    const answerKey = question?.answer; // "A", "B", "C", "D"
+    if (answerKey) {
+      return question[`option${answerKey}`]; // Fetch the answer option text
     }
-    return question?.answer || "N/A";
+    return "N/A";
+  };
+
+  // Fetch the Mock Test name by matching the mock_test_id
+  const resolveMockTestName = (mockTestId) => {
+    const mockTest = mockTests?.find((test) => test.id === mockTestId);
+    return mockTest ? mockTest.name : "N/A";
   };
 
   return (
@@ -124,17 +137,19 @@ const QuestionList = () => {
             <th className="p-4">SN</th>
             <th className="p-4">Question</th>
             <th className="p-4">Answer</th>
-            <th className="p-4">Type</th>
+            <th className="p-4">Mock Test</th>
             <th className="p-4 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {questions.map((question, index) => (
+          {currentQuestions.map((question, index) => (
             <tr key={question.id} className="border-b">
-              <td className="p-4">{index + 1}</td>
+              <td className="p-4">{index + 1 + indexOfFirstQuestion}</td>
               <td className="p-4">{question?.description}</td>
               <td className="p-4">{resolveAnswer(question)}</td>
-              <td className="p-4">{question?.questionType?.name}</td>
+              <td className="p-4">
+                {resolveMockTestName(question?.mock_test_id)}
+              </td>
               <td className="p-4 text-center">
                 <button
                   onClick={() => openDetail(question)}
@@ -149,7 +164,7 @@ const QuestionList = () => {
                   <FaEdit />
                 </button>
                 <button
-                  onClick={() => handleDeleteQuestion(question.id)}
+                  onClick={() => handleDeleteQuestion(question?.id)}
                   className="text-red-500"
                 >
                   <FaTrash />
@@ -159,6 +174,25 @@ const QuestionList = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="bg-gray-300 text-gray-600 px-4 py-2 rounded-lg"
+        >
+          Previous
+        </button>
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={indexOfLastQuestion >= questions.length}
+          className="bg-gray-300 text-gray-600 px-4 py-2 rounded-lg"
+        >
+          Next
+        </button>
+      </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-4 rounded-lg shadow-lg w-[40vw] relative">
@@ -173,14 +207,12 @@ const QuestionList = () => {
                 question={editingQuestion}
                 onSave={handleEditQuestion}
                 onCancel={closeModal}
-                questionTypes={questionTypes}
                 mockTests={mockTests}
               />
             ) : (
               <AddQuestionForm
                 onAdd={handleAddQuestion}
                 onCancel={closeModal}
-                questionTypes={questionTypes}
               />
             )}
           </div>
