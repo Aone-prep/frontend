@@ -1,27 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
 import AddMockTestForm from "./AddMockTestForm";
 import EditMockTestForm from "./EditMockTestForm";
 import MockTestDetail from "./MockTestDetail";
+import {
+  createMocktest,
+  updateMocktest,
+  deleteMocktest,
+  getMocktests,
+} from "@services/admin/mockTest"; // Importing the API functions
 
 const MockTestList = () => {
-  const [mockTests, setMockTests] = useState([
-    {
-      id: 1,
-      name: "Mock Test 1",
-      description: "This is a description for Mock Test 1",
-      duration: 60,
-      maxScore: 100,
-      courseName: "Course 1", // Direct course name entry, no dropdown
-      status: "Active",
-    },
-    // Add more mock test entries as needed
-  ]);
-
+  // State for managing mock tests and pagination
+  const [mockTests, setMockTests] = useState([]);
   const [editingMockTest, setEditingMockTest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedMockTest, setSelectedMockTest] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10); // Number of items per page
+  const [totalCount, setTotalCount] = useState(0); // Total number of mock tests for pagination
+  
+  // Fetch mock tests when the component mounts or when page changes
+  useEffect(() => {
+    const fetchMockTests = async () => {
+      try {
+        const response = await getMocktests(currentPage, pageSize); // Assuming the API supports pagination
+        setMockTests(response);
+        setTotalCount(response.length); // Assuming the response includes total count
+      } catch (error) {
+        console.error("Error fetching mock tests:", error);
+      }
+    };
+
+    fetchMockTests();
+  }, [currentPage, pageSize]); // Re-fetch when current page or page size changes
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -39,25 +54,48 @@ const MockTestList = () => {
     setSelectedMockTest(null);
   };
 
-  const addMockTest = (mockTest) => {
-    const newMockTest = {
-      ...mockTest,
-      id: mockTests.length + 1,
-    };
-    setMockTests([...mockTests, newMockTest]);
-    closeModal();
+  // Add mock test using the API
+  const addMockTest = async (mockTest) => {
+    try {
+      const newMockTest = await createMocktest(mockTest); // Call API to create mock test
+      setMockTests((prevMockTests) => [...prevMockTests, newMockTest]);
+      closeModal();
+    } catch (error) {
+      console.error("Error adding mock test:", error);
+    }
   };
 
-  const editMockTest = (updatedMockTest) => {
-    setMockTests(
-      mockTests.map((mt) => (mt.id === updatedMockTest.id ? updatedMockTest : mt))
-    );
-    closeModal();
+  // Edit an existing mock test using the API
+  const editMockTest = async (updatedMockTest) => {
+    try {
+      const updatedTest = await updateMocktest(updatedMockTest.id, updatedMockTest); // Call API to update mock test
+      setMockTests((prevMockTests) =>
+        prevMockTests.map((mt) => (mt.id === updatedTest.id ? updatedTest : mt))
+      );
+      closeModal();
+    } catch (error) {
+      console.error("Error updating mock test:", error);
+    }
   };
 
-  const deleteMockTest = (id) => {
-    setMockTests(mockTests.filter((mt) => mt.id !== id));
+  // Delete a mock test using the API
+  const deleteMockTest = async (id) => {
+    try {
+      await deleteMocktest(id); // Call API to delete mock test
+      setMockTests((prevMockTests) => prevMockTests.filter((mt) => mt.id !== id));
+    } catch (error) {
+      console.error("Error deleting mock test:", error);
+    }
   };
+
+  // Pagination controls
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= Math.ceil(totalCount / pageSize)) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <div className="container mx-auto p-4">
@@ -79,8 +117,6 @@ const MockTestList = () => {
             <th className="px-6 py-3 text-left">Description</th>
             <th className="px-6 py-3 text-left">Duration</th>
             <th className="px-6 py-3 text-left">Max Score</th>
-            <th className="px-6 py-3 text-left">Course Name</th>
-            <th className="px-6 py-3 text-left">Status</th>
             <th className="px-6 py-3 text-center">Actions</th>
           </tr>
         </thead>
@@ -90,9 +126,7 @@ const MockTestList = () => {
               <td className="px-6 py-4">{mockTest.name}</td>
               <td className="px-6 py-4">{mockTest.description}</td>
               <td className="px-6 py-4">{mockTest.duration} mins</td>
-              <td className="px-6 py-4">{mockTest.maxScore}</td>
-              <td className="px-6 py-4">{mockTest.courseName}</td> {/* Course name displayed directly */}
-              <td className="px-6 py-4">{mockTest.status}</td>
+              <td className="px-6 py-4">{mockTest.max_score}</td>
               <td className="px-6 py-4 text-center">
                 <button
                   onClick={() => setEditingMockTest(mockTest)}
@@ -117,6 +151,27 @@ const MockTestList = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Pagination controls */}
+      <div className="flex justify-between mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+        >
+          Previous
+        </button>
+        <span className="flex items-center justify-center text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+        >
+          Next
+        </button>
+      </div>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

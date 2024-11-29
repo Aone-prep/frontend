@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createMocktest } from "@services/admin/mockTest"; // Import the API call
 
 const AddMockTestForm = ({ onAdd, onCancel }) => {
   const [name, setName] = useState("");
@@ -7,16 +8,50 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
   const [maxScore, setMaxScore] = useState("");
   const [courseName, setCourseName] = useState("Course 1");
   const [status, setStatus] = useState("Active");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onAdd({ name, description, duration, maxScore, courseName, status });
+
+    // Show loading spinner while submitting
+    setLoading(true);
+    setError("");
+
+    try {
+      // Create a new mock test using the API
+      const mockTestData = { name, description, duration, maxScore, courseName, status:status==="Active"?1:0};
+      const newMockTest = await createMocktest(mockTestData);
+
+      // Pass the new mock test data to the parent component (onAdd callback)
+      onAdd(newMockTest);
+      
+      // Clear form and close modal
+      setName("");
+      setDescription("");
+      setDuration("");
+      setMaxScore("");
+      setCourseName("Course 1");
+      setStatus("Active");
+      onCancel();  // Close the modal after successful submission
+    } catch (err) {
+      setError("An error occurred while creating the mock test.");
+    } finally {
+      setLoading(false); // Hide loading spinner
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
       <h3 className="text-2xl font-semibold text-gray-800 mb-6">Add Mock Test</h3>
-      
+
+      {/* Error Message */}
+      {error && (
+        <div className="text-red-500 mb-4">
+          <p>{error}</p>
+        </div>
+      )}
+
       <div className="mb-5">
         <label className="block text-gray-600 font-medium mb-2">Name</label>
         <input
@@ -102,9 +137,12 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
         </button>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          className={`${
+            loading ? "bg-gray-400" : "bg-blue-600"
+          } text-white px-6 py-2 rounded-lg hover:bg-blue-700`}
+          disabled={loading} // Disable the button while submitting
         >
-          Save
+          {loading ? "Saving..." : "Save"}
         </button>
       </div>
     </form>
