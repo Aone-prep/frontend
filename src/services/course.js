@@ -46,3 +46,13 @@ export const getUserCourses = async (id) => {
     throw error.response.data;
   }
 };
+
+export const courseProgress = async (payload) => {
+  console.log(payload, "this is payload");
+  try {
+    const response = await api.post(`/user/progress`, payload);
+    return response;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
