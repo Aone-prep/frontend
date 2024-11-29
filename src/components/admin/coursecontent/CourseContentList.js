@@ -11,6 +11,7 @@ const CourseContentList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState(null);
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,12 +27,13 @@ const CourseContentList = () => {
     fetchData();
   }, []);
 
+
   const handleModalOpen = (content = null) => {
     setCurrentContent(content || {
       title: '',
       body: '',
       type: 'text', // Set default type to 'text'
-      course: courses[0]?.id || '', // Set default course to the first course (if available)
+      courseId: courses[0]?.id || '', // Set default course to the first course (if available)
       createdAt: '',
       updatedAt: ''
     });
@@ -55,11 +57,11 @@ const CourseContentList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (currentContent._id) {
+      if (currentContent.id) {
         // Update existing content
-        const updatedContent = await updateCourseContent(currentContent._id, currentContent);
+        const updatedContent = await updateCourseContent(currentContent.id, currentContent);
         setCourseContents(courseContents.map((content) =>
-          content._id === updatedContent._id ? updatedContent : content
+          content.id === updatedContent.id ? updatedContent : content
         ));
       } else {
         // Add new content
@@ -75,12 +77,11 @@ const CourseContentList = () => {
   const handleDelete = async (id) => {
     try {
       await deleteCourseContent(id);
-      setCourseContents(courseContents.filter((content) => content._id !== id));
+      setCourseContents(courseContents.filter((content) => content.id !== id));
     } catch (error) {
       console.error("Error deleting course content:", error);
     }
   };
-
   return (
     <div className="container mx-auto p-4">
       {/* Add button on the right */}
@@ -106,9 +107,9 @@ const CourseContentList = () => {
         </thead>
         <tbody>
           {courseContents.map((content) => (
-            <tr key={content._id}>
+            <tr key={content.id}>
               <td className="border px-4 py-2">{content.title}</td>
-              <td className="border px-4 py-2">{courses.find(course => parseInt(course.id) === parseInt(content.course))?.name}</td>
+              <td className="border px-4 py-2">{courses.find(course => parseInt(course.id) === parseInt(content.courseId))?.course_name}</td>
               <td className="border px-4 py-2">{content.createdAt}</td>
               <td className="border px-4 py-2">{content.updatedAt}</td>
               <td className="border px-4 py-2 text-center">
@@ -121,7 +122,7 @@ const CourseContentList = () => {
                 </button>
                 {/* Delete Icon */}
                 <button
-                  onClick={() => handleDelete(content._id)}
+                  onClick={() => handleDelete(content.id)}
                   className="text-red-500"
                 >
                   <FaTrash />
@@ -136,7 +137,7 @@ const CourseContentList = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-md w-96">
-            <h2 className="text-xl font-semibold mb-4">{currentContent ? 'Edit' : 'Add'} Course Content</h2>
+            <h2 className="text-xl font-semibold mb-4">{currentContent?.title ? 'Edit' : 'Add'} Course Content</h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -163,7 +164,7 @@ const CourseContentList = () => {
                   <option value="">Select Course</option>
                   {courses.map((course) => (
                     <option key={course.id} value={course.id}>
-                      {course.name}
+                      {course.course_name}
                     </option>
                   ))}
                 </select>
@@ -212,8 +213,8 @@ const CourseContentList = () => {
                   <label className="block text-sm font-medium text-gray-700">Video URL</label>
                   <input
                     type="url"
-                    name="videoUrl"
-                    value={currentContent?.videoUrl || ''}
+                    name="mediaUrl"
+                    value={currentContent?.mediaUrl || ''}
                     onChange={handleChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                     placeholder="Paste video URL here"
@@ -226,7 +227,7 @@ const CourseContentList = () => {
                   type="submit"
                   className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
                 >
-                  {currentContent._id ? 'Update' : 'Add'} Content
+                  {currentContent.id ? 'Update' : 'Add'} Content
                 </button>
                 <button
                   type="button"

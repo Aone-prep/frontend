@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { createMocktest } from "@services/admin/mockTest"; // Import the API call
 
-const AddMockTestForm = ({ onAdd, onCancel }) => {
+const AddMockTestForm = ({ onAdd, onCancel,courses }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("");
-  const [maxScore, setMaxScore] = useState("");
+  const [max_score, setMaxScore] = useState("");
   const [courseName, setCourseName] = useState("Course 1");
   // const [status, setStatus] = useState("Active");
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
         name,
         description,
         duration,
-        maxScore,
+        max_score,
         courseName,
         // status: status === "Active" ? 1 : 0,
       };
@@ -107,7 +107,7 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
         </label>
         <input
           type="number"
-          value={maxScore}
+          value={max_score}
           onChange={(e) => setMaxScore(e.target.value)}
           className="border rounded-lg px-3 py-2 w-full text-gray-700 focus:outline-none focus:border-blue-500"
           placeholder="Enter maximum score"
@@ -116,20 +116,20 @@ const AddMockTestForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div className="mb-5">
-        <label className="block text-gray-600 font-medium mb-2">
-          Course Name
-        </label>
-        <select
-          value={courseName}
-          onChange={(e) => setCourseName(e.target.value)}
-          className="border rounded-lg px-3 py-2 w-full text-gray-700 focus:outline-none focus:border-blue-500"
-          required
-        >
-          <option>Course 1</option>
-          <option>Course 2</option>
-          <option>Course 3</option>
-        </select>
-      </div>
+          <label className="block text-gray-600 font-medium mb-2">Course Name</label>
+          <select
+            value={courseName}
+            onChange={(e) => setCourseName(e.target.value)}
+            className="border rounded-lg px-3 py-2 w-full text-gray-700 focus:outline-none focus:border-blue-500"
+            required
+          >
+            {courses.map((course, index) => (
+              <option key={index} value={course?.id}>
+                {course?.course_name}
+              </option>
+            ))}
+          </select>
+        </div>
 
       {/* <div className="mb-5">
         <label className="block text-gray-600 font-medium mb-2">Status</label>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { updateMocktest } from "@services/admin/mockTest";  // Import the API call
 
-const EditMockTestForm = ({ mockTest, onSave, onCancel }) => {
+const EditMockTestForm = ({ mockTest, onSave, onCancel,courses }) => {
   const [name, setName] = useState(mockTest.name);
   const [description, setDescription] = useState(mockTest.description);
   const [duration, setDuration] = useState(mockTest.duration);
@@ -111,9 +111,11 @@ const EditMockTestForm = ({ mockTest, onSave, onCancel }) => {
           className="border rounded px-3 py-2 w-full"
           required
         >
-          <option>Course 1</option>
-          <option>Course 2</option>
-          <option>Course 3</option>
+          {courses.map((course, index) => (
+            <option key={index} value={course?.id}>
+              {course}
+            </option>
+          ))}
         </select>
       </div>
       <div className="mb-4">

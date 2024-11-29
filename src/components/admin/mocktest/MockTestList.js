@@ -8,7 +8,10 @@ import {
   updateMocktest,
   deleteMocktest,
   getMocktests,
-} from "@services/admin/mockTest"; // Importing the API functions
+} from "@services/admin/mockTest";
+import {
+  getCourses
+} from "@services/admin/courses"; // Importing the API functions
 
 const MockTestList = () => {
   // State for managing mock tests and pagination
@@ -17,6 +20,7 @@ const MockTestList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedMockTest, setSelectedMockTest] = useState(null);
+  const [courses,setCourses] = useState([])
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +39,9 @@ const MockTestList = () => {
             ? updatedDiff
             : new Date(b.createdAt) - new Date(a.createdAt);
         });
+
+        const courseResponse = await getCourses()
+        setCourses(courseResponse?.data)
 
         setMockTests(sortedMockTests);
         setTotalCount(response.length); // Assuming the response includes total count
@@ -122,6 +129,8 @@ const MockTestList = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  console.log(mockTests)
+
   return (
     <div className="container mx-auto p-4">
       <button
@@ -151,7 +160,7 @@ const MockTestList = () => {
               <td className="px-6 py-4">{mockTest.name}</td>
               <td className="px-6 py-4">{mockTest.description}</td>
               <td className="px-6 py-4">{mockTest.duration} mins</td>
-              <td className="px-6 py-4">{mockTest.max_score}</td>
+              <td className="px-6 py-4">{mockTest?.max_score}</td>
               <td className="px-6 py-4 text-center">
                 <button
                   onClick={() => setEditingMockTest(mockTest)}
@@ -212,9 +221,10 @@ const MockTestList = () => {
                 mockTest={editingMockTest}
                 onSave={editMockTest}
                 onCancel={closeModal}
+                courses={courses}
               />
             ) : (
-              <AddMockTestForm onAdd={addMockTest} onCancel={closeModal} />
+              <AddMockTestForm onAdd={addMockTest} onCancel={closeModal} courses={courses} />
             )}
           </div>
         </div>
