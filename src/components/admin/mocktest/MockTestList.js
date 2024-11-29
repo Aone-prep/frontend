@@ -17,18 +17,26 @@ const MockTestList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedMockTest, setSelectedMockTest] = useState(null);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10); // Number of items per page
   const [totalCount, setTotalCount] = useState(0); // Total number of mock tests for pagination
-  
-  // Fetch mock tests when the component mounts or when page changes
+
   useEffect(() => {
     const fetchMockTests = async () => {
       try {
-        const response = await getMocktests(currentPage, pageSize); // Assuming the API supports pagination
-        setMockTests(response);
+        const response = await getMocktests(currentPage, pageSize);
+
+        // Sort mock tests by `updatedAt` first, then `createdAt` in descending order
+        const sortedMockTests = response.sort((a, b) => {
+          const updatedDiff = new Date(b.updatedAt) - new Date(a.updatedAt);
+          return updatedDiff !== 0
+            ? updatedDiff
+            : new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        setMockTests(sortedMockTests);
         setTotalCount(response.length); // Assuming the response includes total count
       } catch (error) {
         console.error("Error fetching mock tests:", error);
@@ -54,23 +62,38 @@ const MockTestList = () => {
     setSelectedMockTest(null);
   };
 
-  // Add mock test using the API
   const addMockTest = async (mockTest) => {
     try {
-      const newMockTest = await createMocktest(mockTest); // Call API to create mock test
-      setMockTests((prevMockTests) => [...prevMockTests, newMockTest]);
+      const newMockTest = await createMocktest(mockTest);
+      setMockTests((prevMockTests) =>
+        [...prevMockTests, newMockTest].sort((a, b) => {
+          const updatedDiff = new Date(b.updatedAt) - new Date(a.updatedAt);
+          return updatedDiff !== 0
+            ? updatedDiff
+            : new Date(b.createdAt) - new Date(a.createdAt);
+        })
+      );
       closeModal();
     } catch (error) {
       console.error("Error adding mock test:", error);
     }
   };
 
-  // Edit an existing mock test using the API
   const editMockTest = async (updatedMockTest) => {
     try {
-      const updatedTest = await updateMocktest(updatedMockTest.id, updatedMockTest); // Call API to update mock test
+      const updatedTest = await updateMocktest(
+        updatedMockTest.id,
+        updatedMockTest
+      );
       setMockTests((prevMockTests) =>
-        prevMockTests.map((mt) => (mt.id === updatedTest.id ? updatedTest : mt))
+        prevMockTests
+          .map((mt) => (mt.id === updatedTest.id ? updatedTest : mt))
+          .sort((a, b) => {
+            const updatedDiff = new Date(b.updatedAt) - new Date(a.updatedAt);
+            return updatedDiff !== 0
+              ? updatedDiff
+              : new Date(b.createdAt) - new Date(a.createdAt);
+          })
       );
       closeModal();
     } catch (error) {
@@ -82,7 +105,9 @@ const MockTestList = () => {
   const deleteMockTest = async (id) => {
     try {
       await deleteMocktest(id); // Call API to delete mock test
-      setMockTests((prevMockTests) => prevMockTests.filter((mt) => mt.id !== id));
+      setMockTests((prevMockTests) =>
+        prevMockTests.filter((mt) => mt.id !== id)
+      );
     } catch (error) {
       console.error("Error deleting mock test:", error);
     }
