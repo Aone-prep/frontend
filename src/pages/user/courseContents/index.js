@@ -6,23 +6,24 @@ import {
   setCourseCategoriesData,
   setCoursesData,
 } from "@redux/slices/courseSlice";
-import { getCourseCategories, getCourses } from "@services/course";
+import { getCourseCategories, getCourses, startCourse } from "@services/course";
 import { dummyCategories, dummyCourses } from "@utils/dummyData";
+import { showToast } from "@utils/helper";
+import { getUserCourses } from "@services/course"; // Import the getUserCourses function
 
 const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [loggedUserCourses, setLoggedUserCourses] = useState([]);
 
-  const loggedInUser = useSelector((state) => state.user.loggedUser);
-
+  const loggedInUserId = useSelector((state) => state.user?.loggedUser?.id);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const courses = useSelector((state) => state.course.courses);
 
-  // Helper function to get user progress for a course
+  // Filter and sort enrolled courses
   const getUserCourseProgress = (courseId) => {
-    if (!loggedInUser?.userCourses) return null;
-    const userCourse = loggedInUser.userCourses.find(
+    const userCourse = loggedUserCourses.find(
       (uc) => uc.course.id === courseId
     );
     return userCourse
@@ -33,13 +34,11 @@ const Courses = () => {
       : null;
   };
 
-  // Sort courses based on user progress
   const sortCourses = (coursesToSort) => {
     return [...coursesToSort].sort((a, b) => {
       const progressA = getUserCourseProgress(a.id);
       const progressB = getUserCourseProgress(b.id);
 
-      // Put "in_progress" courses first
       if (
         progressA?.status === "in_progress" &&
         progressB?.status !== "in_progress"
@@ -51,16 +50,10 @@ const Courses = () => {
       )
         return 1;
 
-      // Then sort by progress percentage
       if (progressA && progressB) {
         return progressB.progress - progressA.progress;
       }
 
-      // Put courses with any progress before courses with no progress
-      if (progressA && !progressB) return -1;
-      if (progressB && !progressA) return 1;
-
-      // Default sort by course name
       return a.course_name.localeCompare(b.course_name);
     });
   };
@@ -82,9 +75,14 @@ const Courses = () => {
           getCourses(),
           getCourseCategories(),
         ]);
-
         dispatch(setCoursesData(coursesResponse?.data));
         dispatch(setCourseCategoriesData(categoriesResponse?.data));
+
+        // Fetch the enrolled courses after the page loads
+        if (loggedInUserId) {
+          const userCoursesResponse = await getUserCourses(loggedInUserId);
+          setLoggedUserCourses(userCoursesResponse?.data || []);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         dispatch(setCoursesData(dummyCourses));
@@ -93,16 +91,44 @@ const Courses = () => {
     }
 
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, loggedInUserId]);
 
   const handleOnCourseClick = (courseId) => {
     navigate(`/courses/${courseId}`);
   };
 
-  // Get unique categories from courses
   const uniqueCategories = [
     ...new Set(courses.map((course) => course.category?.category_name)),
   ];
+
+  const handleStartCourse = async (courseId) => {
+    const payload = { user_id: loggedInUserId, course_id: courseId };
+
+    try {
+      const response = await startCourse(payload);
+
+      if (response.status === 200) {
+        showToast("success", "Enrolled in new course successfully");
+
+        // Refetch the user's courses after enrollment
+        const userCoursesResponse = await getUserCourses(loggedInUserId);
+        setLoggedUserCourses(userCoursesResponse?.data || []);
+      }
+    } catch (error) {
+      console.error("Error enrolling in course:", error.message);
+    }
+  };
+
+  const enrolledCourses = filteredCourses.filter((course) =>
+    loggedUserCourses?.some((userCourse) => userCourse.course.id === course.id)
+  );
+
+  const newCourses = filteredCourses.filter(
+    (course) =>
+      !loggedUserCourses?.some(
+        (userCourse) => userCourse.course.id === course.id
+      )
+  );
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -142,104 +168,107 @@ const Courses = () => {
         </select>
       </div>
 
-      {/* Category Pills */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        <button
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
-            ${
-              selectedCategory === "All"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            }`}
-          onClick={() => setSelectedCategory("All")}
-        >
-          All
-        </button>
-        {uniqueCategories.map((category) => (
-          <button
-            key={category}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
-              ${
-                selectedCategory === category
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-              }`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-
-      {/* Course Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCourses.map((course) => {
-          const userProgress = getUserCourseProgress(course.id);
-          return (
-            <div
-              key={course.id}
-              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow"
-            >
-              <div className="p-6">
-                {/* Course Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-xl font-bold">{course.course_name}</h2>
-                  <div className="flex flex-col gap-2 items-end">
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      {course.level}
-                    </span>
-                    {userProgress?.status === "in_progress" && (
-                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                        In Progress
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Course Description */}
-                <p className="text-gray-600 mb-4">{course.description}</p>
-
-                {/* Course Metadata */}
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{course.duration}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <School className="h-4 w-4" />
-                    <span>{course.category?.category_name}</span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                {userProgress?.progress > 0 && (
-                  <div className="mb-4">
-                    <div className="h-2 bg-gray-200 rounded-full">
-                      <div
-                        className="h-2 bg-green-500 rounded-full transition-all duration-300"
-                        style={{ width: `${userProgress.progress}%` }}
-                      />
+      {/* Enrolled Courses Section */}
+      {enrolledCourses.length > 0 ? (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Enrolled Courses</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {enrolledCourses.map((course) => {
+              const userProgress = loggedUserCourses.find(
+                (userCourse) => userCourse.course.id === course.id
+              );
+              return (
+                <div
+                  key={course.id}
+                  className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow"
+                >
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <h2 className="text-xl font-bold">
+                        {course.course_name}
+                      </h2>
+                      <div className="flex flex-col gap-2 items-end">
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                          {course.level}
+                        </span>
+                        {userProgress?.status === "in_progress" && (
+                          <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                            In Progress
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-sm text-gray-500">
-                      {userProgress.progress}% complete
-                    </span>
-                  </div>
-                )}
 
-                {/* Course Footer */}
-                <div className="flex justify-end items-center mt-4 pt-4 border-t">
+                    <p className="text-gray-600 mb-4">{course.description}</p>
+
+                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{course.duration}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <School className="h-4 w-4" />
+                        <span>{course.category?.category_name}</span>
+                      </div>
+                    </div>
+
+                    {userProgress?.progress > 0 && (
+                      <div className="mb-4">
+                        <div className="h-2 bg-gray-200 rounded-full">
+                          <div
+                            className="h-2 bg-green-500 rounded-full transition-all duration-300"
+                            style={{ width: `${userProgress.progress}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {userProgress.progress}% complete
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center">
+                      <button
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        onClick={() => handleOnCourseClick(course.id)}
+                      >
+                        View Course
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <p>No enrolled courses yet.</p>
+      )}
+
+      {/* New Courses Section */}
+      {newCourses.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">New Courses</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {newCourses.map((course) => (
+              <div
+                key={course.id}
+                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow"
+              >
+                <div className="p-6">
+                  <h2 className="text-xl font-bold">{course.course_name}</h2>
+                  <p className="text-gray-600 mb-4">{course.description}</p>
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                    onClick={() => handleOnCourseClick(course.id)}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                    onClick={() => handleStartCourse(course.id)}
                   >
-                    {userProgress?.progress > 0 ? "Continue" : "Start"}
+                    Start Course
                   </button>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

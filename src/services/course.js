@@ -18,6 +18,16 @@ export const getCourseCategories = async () => {
   }
 };
 
+// Enroll in Course
+export const startCourse = async (payload) => {
+  try {
+    const response = await api.post(`/user/start`, payload);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 // Get course by ID
 export const getCourseById = async (id) => {
   try {
@@ -25,5 +35,14 @@ export const getCourseById = async (id) => {
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
+  }
+};
+
+export const getUserCourses = async (id) => {
+  try {
+    const response = await api.get(`/user/${id}/courses`);
+    return response;
+  } catch (error) {
+    throw error.response.data;
   }
 };
