@@ -5,42 +5,99 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
-import { Provider } from "react-redux";
-import { store } from "./redux/store";
 import { Header } from "@components/user/layout";
-import { LoginPage, Dashboard, PageNotFound } from "./pages";
-import { PublicRoute, PrivateRoute } from "./routes";
-import { RegisterForm } from "./pages/LoginPage";
+import { PublicRoute, UserRoute } from "./routes";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AdminPanel from "@components/admin/AdminPanel";
+import {
+  LoginPage,
+  PageNotFound,
+  RegisterForm,
+  Home,
+  CourseContents,
+  MockTest,
+  Forums,
+  TestHistory,
+} from "@pages/user";
+import UserLayout from "@components/user/layout/UserLayout";
+import { useSelector } from "react-redux";
+import { Toaster } from "react-hot-toast";
+import CourseDetails from "@components/user/layout/CourseDetailPage";
+import AdminLoginPage from "@pages/admin/login";
+import AdminRoute from "@routes/AdminRoute";
 
 function App() {
+  const userAuth = useSelector((state) => ({
+    isAuthenticated: state.user.isAuthenticated,
+    role: state.user.role,
+  }));
+
+  // Helper function to determine the redirect path based on auth status
+  const getHomePath = () => {
+    if (!userAuth.isAuthenticated) return "/login";
+    return userAuth.role === "admin" ? "/admin/dashboard" : "/home";
+  };
+
   return (
-    <Provider store={store}>
-      <Router>
-        <div className="h-screen flex flex-col bg-gray-100">
-          <Header />
-          <div style={{ height: "calc(100vh - 4rem)" }}>
-            <GoogleOAuthProvider
-              clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-            >
-              <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route element={<PublicRoute />}>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterForm />} />
+    <Router>
+      <div className="h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 overflow-hidden">
+          <GoogleOAuthProvider
+            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+          >
+            <Routes>
+              {/* Root redirect */}
+              <Route
+                path="/"
+                element={<Navigate to={getHomePath()} replace />}
+              />
+
+              {/* Public routes */}
+              <Route element={<PublicRoute />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterForm />} />
+              </Route>
+
+              {/* Admin routes */}
+              <Route path="/admin">
+                <Route
+                  path="login"
+                  element={
+                    userAuth.isAuthenticated && userAuth.role === "admin" ? (
+                      <Navigate to="/admin/dashboard" replace />
+                    ) : (
+                      <AdminLoginPage />
+                    )
+                  }
+                />
+                <Route element={<AdminRoute />}>
+                  <Route path="dashboard" element={<AdminPanel />} />
+                  {/* Add other admin routes here */}
                 </Route>
-                <Route element={<PrivateRoute />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+
+              {/* User routes */}
+              <Route element={<UserRoute />}>
+                <Route element={<UserLayout />}>
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/courses" element={<CourseContents />} />
+                  <Route
+                    path="/courses/:courseId"
+                    element={<CourseDetails />}
+                  />
+                  <Route path="/mock-test" element={<MockTest />} />
+                  <Route path="/test-history" element={<TestHistory />} />
                 </Route>
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route path="*" element={<PageNotFound />} />
-              </Routes>
-            </GoogleOAuthProvider>
-          </div>
+              </Route>
+
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </GoogleOAuthProvider>
+          <Toaster />
         </div>
-      </Router>
-    </Provider>
+      </div>
+    </Router>
   );
 }
 

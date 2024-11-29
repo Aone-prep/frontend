@@ -1,9 +1,11 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import { userSlice, examSlice } from "./slices";
+import { userSlice, examSlice, courseSlice, mockTestSlice } from "./slices";
 
 const rootReducer = combineReducers({
-  user: userSlice,
-  exam: examSlice,
+  user: userSlice, // Add the user slice
+  exam: examSlice, // Add the exam slice
+  course: courseSlice, // Add the course slice
+  mockTests: mockTestSlice, // Add the mockTest slice
 });
 
 export default rootReducer;

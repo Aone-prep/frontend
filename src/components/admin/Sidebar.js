@@ -1,7 +1,27 @@
-import React from "react";
-import { FaUser, FaHome, FaCog, FaBook } from "react-icons/fa";
+import React, { useState } from "react";
+import {
+  FaUser,
+  FaHome,
+  FaCog,
+  FaBook,
+  FaQuestion,
+  FaChevronDown,
+  FaChevronRight,
+  FaCheckCircle,
+} from "react-icons/fa";
 
 const Sidebar = ({ onSelect }) => {
+  const [isCourseSubmenuOpen, setIsCourseSubmenuOpen] = useState(false);
+  const [isQuestionSubmenuOpen, setIsQuestionSubmenuOpen] = useState(false);
+
+  const toggleCourseSubmenu = () => {
+    setIsCourseSubmenuOpen(!isCourseSubmenuOpen);
+  };
+
+  const toggleQuestionSubmenu = () => {
+    setIsQuestionSubmenuOpen(!isQuestionSubmenuOpen);
+  };
+
   return (
     <div className="h-screen w-64 bg-gray-800 text-white flex flex-col">
       <div className="p-6 text-2xl font-bold bg-gray-900">Admin Panel</div>
@@ -21,19 +41,81 @@ const Sidebar = ({ onSelect }) => {
             <FaUser className="mr-3" />
             Users
           </li>
+
           <li
-            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
-            onClick={() => onSelect("settings")}
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center justify-between"
+            onClick={toggleCourseSubmenu}
           >
-            <FaCog className="mr-3" />
-            Settings
+            <span className="flex items-center">
+              <FaBook className="mr-3" />
+              Courses
+            </span>
+            {isCourseSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
+          </li>
+          {isCourseSubmenuOpen && (
+            <ul className="ml-8 mt-2 space-y-2">
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("categories")}
+              >
+                Categories
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("courses")}
+              >
+                All Courses
+              </li>
+
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("coursecontent")}
+              >
+                Course Content
+              </li>
+            </ul>
+          )}
+          <li
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center justify-between"
+            onClick={toggleQuestionSubmenu}
+          >
+            <span className="flex items-center">
+              <FaQuestion className="mr-3" />
+              Questions
+            </span>
+            {isQuestionSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
+          </li>
+          {isQuestionSubmenuOpen && (
+            <ul className="ml-8 mt-2 space-y-2">
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("questions")}
+              >
+                Questions{" "}
+              </li>
+
+              <li
+                className="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center"
+                onClick={() => onSelect("question-categories")}
+              >
+                Question Types
+              </li>
+              
+            </ul>
+          )}
+           <li
+            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
+            onClick={() => onSelect("mock-test")}
+          >
+            <FaBook className="mr-3" />
+            MockTest
           </li>
           <li
             className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex items-center"
-            onClick={() => onSelect("courses")}
+            onClick={() => onSelect("results")}
           >
-            <FaBook className="mr-3" />
-            Courses
+            <FaCheckCircle className="mr-3" />
+            Result
           </li>
         </ul>
       </nav>
