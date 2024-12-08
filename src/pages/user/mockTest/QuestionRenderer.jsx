@@ -1,66 +1,118 @@
 import React from 'react';
 import { 
-  Card, 
-  CardContent, 
+  Box, 
   Typography, 
-  Radio, 
-  RadioGroup, 
-  FormControlLabel, 
-  Grid, 
+  Button, 
   Paper, 
-  TextField
+  Chip 
 } from '@mui/material';
+import { motion } from 'framer-motion';
 
-const QuestionRenderer = ({ 
-  question, 
-  selectedAnswer, 
-  onAnswerSelect 
+const QuestionRenderer = ({
+  question,
+  totalQuestions,
+  currentQuestionIndex,
+  selectedAnswer,
+  onAnswerSelect
 }) => {
-  const isMultipleChoice = question.type === 'multiple-choice';
+  if (!question) return null;
+
+  const getOptionColor = (optionId) => {
+    if (selectedAnswer === optionId) {
+      return 'primary';
+    }
+    return 'default';
+  };
+
+  const renderOptions = () => {
+    const options = [
+      { id: 'A', value: question.optionA },
+      { id: 'B', value: question.optionB },
+      { id: 'C', value: question.optionC },
+      { id: 'D', value: question.optionD }
+    ];
+
+    return options.map((option) => (
+      <motion.div
+        key={option.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ width: '100%' }}
+      >
+        <Button
+          variant={selectedAnswer === option.id ? 'contained' : 'outlined'}
+          color={getOptionColor(option.id)}
+          onClick={() => onAnswerSelect(option.id)}
+          fullWidth
+          sx={{
+            justifyContent: 'flex-start', 
+            my: 1, 
+            py: 1.5,
+            textTransform: 'none',
+            borderRadius: 2,
+            '&:hover': {
+              backgroundColor: selectedAnswer === option.id 
+                ? undefined 
+                : 'rgba(0,0,0,0.05)'
+            }
+          }}
+        >
+          {option.value}
+        </Button>
+      </motion.div>
+    ));
+  };
 
   return (
-    <Card elevation={3} className="w-full mb-6">
-      <CardContent>
-        <Typography variant="h6" className="mb-4">
-          {question.text}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      style={{ width: '100%' }}
+    >
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 3, 
+          borderRadius: 3, 
+          mb: 2 
+        }}
+      >
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 2 
+          }}
+        >
+          <Chip 
+            label={`Question ${currentQuestionIndex + 1}/${totalQuestions}`} 
+            color="primary" 
+            variant="outlined" 
+          />
+        </Box>
+
+        <Typography 
+          variant="h6" 
+          gutterBottom 
+          sx={{ fontWeight: 600, mb: 3 }}
+        >
+          {question.description}
         </Typography>
 
-        {isMultipleChoice ? (
-          <RadioGroup 
-            value={selectedAnswer || ''} 
-            onChange={(e) => onAnswerSelect(e.target.value)}
-          >
-            <Grid container spacing={2}>
-              {question.options.map((option, index) => (
-                <Grid item xs={12} sm={6} key={index}>
-                  <Paper 
-                    elevation={1} 
-                    className={`p-3 ${
-                      selectedAnswer === option.value 
-                        ? 'bg-blue-50' 
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <FormControlLabel
-                      value={option.value}
-                      control={<Radio />}
-                      label={option.text}
-                    />
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </RadioGroup>
-        ) : (
-          <TextField
-            fullWidth
-            variant="outlined"
-            value={selectedAnswer || ''}
-            onChange={(e) => onAnswerSelect(e.target.value)}
-          />
-        )}
-      </CardContent>
-    </Card>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 2 
+          }}
+        >
+          {renderOptions()}
+        </Box>
+      </Paper>
+    </motion.div>
   );
 };
 
