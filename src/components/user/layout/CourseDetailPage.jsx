@@ -42,6 +42,7 @@ const CourseDetails = () => {
   const fetchUserCourses = useCallback(async () => {
     try {
       const response = await getUserCourses(loggedInUser.id);
+      console.log(response, "this is response");
       const selectedCourse = response?.data?.data?.find(
         (uc) => uc.course.id === parseInt(courseId)
       );

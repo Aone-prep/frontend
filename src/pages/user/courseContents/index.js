@@ -15,6 +15,7 @@ const Courses = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [loggedUserCourses, setLoggedUserCourses] = useState([]);
+  const [courseCategories, setCourseCategories] = useState([]);
 
   const loggedInUserId = useSelector((state) => state.user?.loggedUser?.id);
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ const Courses = () => {
         ]);
         dispatch(setCoursesData(coursesResponse?.data));
         dispatch(setCourseCategoriesData(categoriesResponse?.data));
-
+        setCourseCategories(categoriesResponse?.data);
         if (loggedInUserId) {
           const userCoursesResponse = await getUserCourses(loggedInUserId);
           setLoggedUserCourses(userCoursesResponse?.data?.data || []);
@@ -169,9 +170,9 @@ const Courses = () => {
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value="All">All Categories</option>
-          {uniqueCategories.map((category) => (
+          {courseCategories.map((category) => (
             <option key={category} value={category}>
-              {category}
+              {category?.category_name}
             </option>
           ))}
         </select>
@@ -193,7 +194,6 @@ const Courses = () => {
                       100
                   )
                 : 0;
-              console.log(course.progress, "this is course progress");
 
               return (
                 <div

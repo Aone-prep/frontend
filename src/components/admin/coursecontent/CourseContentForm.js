@@ -1,18 +1,22 @@
 // src/components/CourseContentForm.js
-import React, { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import React Quill styles
-import { createCourseContent, updateCourseContent, fetchCourses } from '@services/api';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import React Quill styles
+import {
+  createCourseContent,
+  updateCourseContent,
+  fetchCourses,
+} from "@services/api";
+import { useHistory } from "react-router-dom";
 
 const CourseContentForm = ({ content, onClose }) => {
   const [courseContent, setCourseContent] = useState({
-    title: '',
-    body: '',
-    type: 'text',
-    course: '',
-    imageUrl: '',
-    videoUrl: '',
+    title: "",
+    body: "",
+    type: "text",
+    course: null,
+    imageUrl: "",
+    videoUrl: "",
     createdAt: null,
     updatedAt: null,
   });
@@ -59,15 +63,15 @@ const CourseContentForm = ({ content, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (courseContent._id) {
+      if (courseContent.id) {
         // Update existing course content
-        await updateCourseContent(courseContent._id, courseContent);
+        await updateCourseContent(courseContent.id, courseContent);
       } else {
         // Create new course content
         await createCourseContent(courseContent);
       }
       onClose(); // Close the modal/form after saving
-      history.push('/courses'); // Redirect to the courses list page
+      history.push("/courses"); // Redirect to the courses list page
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -76,13 +80,15 @@ const CourseContentForm = ({ content, onClose }) => {
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-xl font-semibold mb-4">
-        {content ? 'Edit' : 'Create'} Course Content
+        {content ? "Edit" : "Create"} Course Content
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Title
+          </label>
           <input
             type="text"
             name="title"
@@ -95,7 +101,9 @@ const CourseContentForm = ({ content, onClose }) => {
 
         {/* Course Dropdown */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Course</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Course
+          </label>
           <select
             name="course"
             value={courseContent.course}
@@ -114,7 +122,9 @@ const CourseContentForm = ({ content, onClose }) => {
 
         {/* Content Type Dropdown */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Content Type</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Content Type
+          </label>
           <select
             name="type"
             value={courseContent.type}
@@ -128,9 +138,11 @@ const CourseContentForm = ({ content, onClose }) => {
         </div>
 
         {/* Text Content Editor */}
-        {courseContent.type === 'text' && (
+        {courseContent.type === "text" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Body (Text)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Body (Text)
+            </label>
             <ReactQuill
               value={courseContent.body}
               onChange={handleEditorChange}
@@ -140,9 +152,11 @@ const CourseContentForm = ({ content, onClose }) => {
         )}
 
         {/* Image Upload for "Picture" Type */}
-        {courseContent.type === 'picture' && (
+        {courseContent.type === "picture" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Upload Image
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -160,9 +174,11 @@ const CourseContentForm = ({ content, onClose }) => {
         )}
 
         {/* Video URL Input for "Video" Type */}
-        {courseContent.type === 'video' && (
+        {courseContent.type === "video" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">Video URL</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Video URL
+            </label>
             <input
               type="url"
               name="videoUrl"
@@ -180,7 +196,7 @@ const CourseContentForm = ({ content, onClose }) => {
             type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            {content ? 'Update' : 'Save'} Content
+            {content ? "Update" : "Save"} Content
           </button>
         </div>
       </form>
