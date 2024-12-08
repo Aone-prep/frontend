@@ -65,3 +65,12 @@ export const getMockTestResults = async (mockTestId) => {
     throw error.response?.data || { message: "Failed to fetch test results" };
   }
 };
+
+export const getUserTestHistory = async () => {
+  try {
+    const response = await api.get("/user/tests");
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to fetch test history" };
+  }
+};
