@@ -153,7 +153,7 @@ const CourseDetails = () => {
         return (
           <Box sx={{ textAlign: "center" }}>
             <img
-              src={content.mediaUrl}
+              src={"https://imgs.search.brave.com/Z948JSmrBbQ-_XDpJ8bvONLhd7NEswwkM_LVLFDS3XY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy83/Lzc5L0VuY29kaW5n/X2NvbW11bmljYXRp/b24uanBn"}
               alt={content.title}
               style={{ maxWidth: "100%", borderRadius: 8 }}
             />
